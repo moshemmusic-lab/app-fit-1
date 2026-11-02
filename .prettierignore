@@ -7,6 +7,7 @@ dist/
 coverage/
 supabase/.temp/
 packages/shared/src/theme/tokens.generated.ts
+supabase/functions/**/deno.lock
 
 # Hand-written product docs keep their own formatting
 docs/
