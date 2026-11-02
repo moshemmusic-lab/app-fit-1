@@ -32,7 +32,8 @@ export default function VerifyCodeScreen() {
     return () => clearTimeout(timer);
   }, [cooldown]);
 
-  // On success the session changes and the navigation guard opens onboarding or the app.
+  // On success the session changes and the navigation guard opens onboarding or the app
+  // once the account has loaded; the button keeps spinning until then.
   const verify = useMutation({
     mutationFn: (value: string) => verifySignInCode(email, value),
     onError: (error) => {
@@ -71,7 +72,7 @@ export default function VerifyCodeScreen() {
       footer={
         <Button
           label={t('auth.signIn')}
-          loading={verify.isPending}
+          loading={verify.isPending || verify.isSuccess}
           disabled={code.length !== accountLimits.signInCodeLength}
           onPress={() => submit(code)}
         />

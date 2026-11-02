@@ -37,7 +37,7 @@ export default function RootLayout() {
  */
 function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
   const isRestoringCache = useIsRestoring();
-  const { session, isLoading: isLoadingSession } = useSession();
+  const { session, isLoading: isLoadingSession, isRestoredSession } = useSession();
   const settings = useSettings(session?.user.id);
 
   const isSignedIn = session !== null;
@@ -46,17 +46,19 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
   // Signed in, but the settings never loaded and nothing is cached on the phone.
   const settingsUnavailable =
     isSignedIn && !hasSettings && (settings.isError || settings.fetchStatus === 'paused');
+  const isCheckingAccount = isSignedIn && !hasSettings && !settingsUnavailable;
+  // On a cold start keep the splash while the account loads. Right after signing in,
+  // stay on the sign-in screens instead (see the guards below).
   const isReady =
     fontsReady &&
     !isRestoringCache &&
     !isLoadingSession &&
-    (!isSignedIn || hasSettings || settingsUnavailable);
+    !(isCheckingAccount && isRestoredSession);
 
   useEffect(() => {
     if (isReady) void SplashScreen.hideAsync();
   }, [isReady]);
 
-  // Keep the splash screen until we know where to go.
   if (!isReady) return null;
 
   if (settingsUnavailable) {
@@ -71,14 +73,14 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={!isSignedIn}>
+      <Stack.Protected guard={!isSignedIn || isCheckingAccount}>
         <Stack.Screen name="sign-in" />
         <Stack.Screen name="verify-code" />
       </Stack.Protected>
-      <Stack.Protected guard={isSignedIn && !isOnboarded}>
+      <Stack.Protected guard={isSignedIn && hasSettings && !isOnboarded}>
         <Stack.Screen name="onboarding" />
       </Stack.Protected>
-      <Stack.Protected guard={isSignedIn && isOnboarded}>
+      <Stack.Protected guard={isSignedIn && hasSettings && isOnboarded}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="edit-profile" />
         <Stack.Screen name="settings" />

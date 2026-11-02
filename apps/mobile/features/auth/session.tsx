@@ -8,9 +8,13 @@ interface SessionState {
   session: Session | null;
   /** True until the saved session (if any) has been read from the phone. */
   isLoading: boolean;
+  /** True when the session was restored at app start, false right after signing in. */
+  isRestoredSession: boolean;
 }
 
-const SessionContext = createContext<SessionState>({ session: null, isLoading: true });
+const initialState: SessionState = { session: null, isLoading: true, isRestoredSession: false };
+
+const SessionContext = createContext<SessionState>(initialState);
 
 export function useSession(): SessionState {
   return use(SessionContext);
@@ -27,7 +31,7 @@ export function useUserId(): string {
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
-  const [state, setState] = useState<SessionState>({ session: null, isLoading: true });
+  const [state, setState] = useState<SessionState>(initialState);
 
   useEffect(() => {
     // Fires INITIAL_SESSION right away with the session saved on the phone, then every change.
@@ -36,7 +40,17 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         // Nothing from the previous account may stay cached on the phone.
         queryClient.clear();
       }
-      setState({ session, isLoading: false });
+      setState((previous) => ({
+        session,
+        isLoading: false,
+        // Token refreshes keep the original flag; a new sign-in resets it.
+        isRestoredSession:
+          event === 'INITIAL_SESSION'
+            ? true
+            : event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED'
+              ? previous.isRestoredSession
+              : false,
+      }));
     });
     return () => data.subscription.unsubscribe();
   }, [queryClient]);

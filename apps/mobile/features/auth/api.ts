@@ -71,8 +71,8 @@ export async function signInWithApple(): Promise<void> {
   if (error) throw error;
 }
 
+/** Ends the session on this phone only. Needs a connection to revoke it on the server. */
 export async function signOut(): Promise<void> {
-  // Signs out locally even when the server cannot be reached.
   const { error } = await supabase.auth.signOut({ scope: 'local' });
   if (error) throw error;
 }
