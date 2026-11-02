@@ -64,11 +64,11 @@ Para cada funcionalidad:
 
 ## Comandos
 
-Desde la raíz del repositorio (requiere Node 24 y pnpm vía `corepack enable pnpm`):
+Desde la raíz del repositorio, la carpeta `app-fit-1` (requiere Node 24 y pnpm vía `corepack enable pnpm`). Desde la carpeta superior pnpm no encuentra los binarios y falla con `expo: command not found`:
 
 - `pnpm install`: instalar dependencias.
 - `pnpm dev`: arrancar todo (app móvil y web).
-- `pnpm --filter mobile start`: app móvil con Expo (escanear el QR con la cámara del iPhone y abrir en Expo Go).
+- `pnpm --filter mobile start`: app móvil con Expo (escanear el QR con la cámara del iPhone y abrir en Expo Go). Expo Go solo abre el proyecto si el iPhone (Expo Go → Log in) y el Mac (`npx expo login`) tienen sesión con la misma cuenta de Expo; comprobar con `npx expo whoami`.
 - `pnpm --filter web dev`: web en http://localhost:3000.
 - `pnpm typecheck` · `pnpm lint` · `pnpm test` · `pnpm format` (Prettier).
 - `pnpm tokens`: regenera el tema (`packages/shared/src/theme/tokens.generated.ts`) tras editar `docs/design-tokens.json`. Un test falla si no están sincronizados.
