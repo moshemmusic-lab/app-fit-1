@@ -1,7 +1,7 @@
 # ARCHITECTURE.md — App Fit 1
 
 > **Cómo está construida la aplicación por dentro.** Tecnologías, base de datos, usuarios, pagos y cómo se conectan las piezas.
-> Última actualización: 27/10/2026. Documentos relacionados: [PRODUCT.md](./PRODUCT.md) y [MVP.md](./MVP.md).
+> Última actualización: 02/11/2026. Documentos relacionados: [PRODUCT.md](./PRODUCT.md) y [MVP.md](./MVP.md).
 
 ---
 
@@ -57,19 +57,21 @@ app-fit-1/
 │   └── MVP.md
 ├── apps/
 │   ├── mobile/               # Expo (Expo Router)
-│   │   ├── app/              # Pantallas: (tabs)/inicio, entrenar, programas, progreso, perfil
+│   │   ├── app/              # Pantallas: (tabs)/index (inicio), workout, programs, progress, profile
 │   │   ├── features/         # workout, routines, programs, social, progress, auth
 │   │   ├── db/               # SQLite local + cola de sincronización
-│   │   └── components/
+│   │   ├── components/       # ui/ (Text, Screen, Chip…) con el tema compartido
+│   │   └── theme/            # Proveedor del tema y fuentes (Barlow Condensed, Inter)
 │   └── web/                  # Next.js
 │       ├── app/(creator)/    # Panel de creadores
 │       ├── app/p/[slug]/     # Landing pública de cada programa + checkout
 │       └── app/(admin)/      # Revisión de creadores, programas y denuncias
 ├── packages/
-│   └── shared/               # Tipos de la BD, esquemas Zod, lógica de progresión, 1RM, i18n
+│   └── shared/               # Tema (generado desde design-tokens.json), i18n, tipos de la BD, esquemas Zod, progresión, 1RM
 └── supabase/
     ├── migrations/           # SQL versionado (única forma de cambiar la BD)
     ├── functions/            # Edge Functions: stripe-webhook, revenuecat-webhook, export-data, delete-account…
+    ├── tests/database/       # Tests pgTAP (RLS activada en todas las tablas, políticas)
     └── seed.sql              # Biblioteca de ejercicios inicial
 ```
 

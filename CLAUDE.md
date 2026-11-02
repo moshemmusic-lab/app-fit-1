@@ -62,10 +62,23 @@ Para cada funcionalidad:
 - Si una petición contradice los documentos, avisa y propón cómo resolverlo antes de cambiar nada.
 - Cuando se tome una decisión importante, actualiza el documento correspondiente en `docs/`.
 
-## Comandos (actualizar cuando existan)
+## Comandos
+
+Desde la raíz del repositorio (requiere Node 24 y pnpm vía `corepack enable pnpm`):
 
 - `pnpm install`: instalar dependencias.
-- `pnpm dev`: arrancar todo.
-- `pnpm --filter mobile start`: app móvil con Expo.
-- `pnpm typecheck` · `pnpm lint` · `pnpm test`
-- `supabase start`: base de datos local · `supabase db reset`: aplicar migraciones y datos iniciales.
+- `pnpm dev`: arrancar todo (app móvil y web).
+- `pnpm --filter mobile start`: app móvil con Expo (escanear el QR con la cámara del iPhone y abrir en Expo Go).
+- `pnpm --filter web dev`: web en http://localhost:3000.
+- `pnpm typecheck` · `pnpm lint` · `pnpm test` · `pnpm format` (Prettier).
+- `pnpm tokens`: regenera el tema (`packages/shared/src/theme/tokens.generated.ts`) tras editar `docs/design-tokens.json`. Un test falla si no están sincronizados.
+- `pnpm db:start`: base de datos local (requiere Docker) · `pnpm db:reset`: aplicar migraciones y datos iniciales · `pnpm db:test`: tests de base de datos (RLS).
+- Dependencias de la app móvil: instalar siempre con `npx expo install <paquete>` desde `apps/mobile` (elige versiones compatibles con Expo Go).
+
+## Notas técnicas del monorepo
+
+- `apps/mobile` usa Expo SDK 58: Expo Go en el iPhone solo abre la última versión del SDK. Si una librería necesita código nativo que no está en Expo Go, hará falta una development build (avisar antes).
+- `pnpm-workspace.yaml` usa `nodeLinker: hoisted` y fija una única versión de React para Expo y Next.
+- Tema: `@app-fit/shared/theme` (colores por modo, tipografía, espaciado, radios y tamaños). En el móvil, `useTheme()` y los componentes de `components/ui`; en la web, variables CSS (`--color-bg`, `--space-4`…).
+- Textos: `packages/shared/src/i18n/locales/es.ts`. En el móvil se usan con `useTranslation()` (claves con tipos).
+- Rutas del móvil en inglés: `app/(tabs)/index` (Inicio), `workout`, `programs`, `progress`, `profile`.
