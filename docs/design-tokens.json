@@ -1,0 +1,81 @@
+{
+  "name": "Movyn",
+  "version": 1,
+  "color": {
+    "themes": [
+      { "id": "dark", "name": "Oscuro" },
+      { "id": "light", "name": "Claro" }
+    ],
+    "tokens": [
+      { "name": "lime", "value": { "dark": "#c6f432", "light": "#c6f432" }, "usage": "Color de marca. Solo como relleno: botón principal, serie hecha, día entrenado, chip activo. Siempre con texto ink-on-lime encima. Nunca como texto sobre fondo claro." },
+      { "name": "ink-on-lime", "value": { "dark": "#121316", "light": "#121316" }, "usage": "Texto e iconos sobre lime." },
+      { "name": "accent-text", "value": { "dark": "#c6f432", "light": "#3f5a00" }, "usage": "El acento cuando es texto o icono (récords, +10 kg, trofeos). En claro pasa a verde oscuro para cumplir contraste sobre bg y surface." },
+      { "name": "bg", "value": { "dark": "#0e0f11", "light": "#eef0f2" }, "usage": "Fondo de pantalla." },
+      { "name": "surface", "value": { "dark": "#17191d", "light": "#ffffff" }, "usage": "Tarjetas, barra de pestañas, panel de descanso." },
+      { "name": "surface-2", "value": { "dark": "#202329", "light": "#e6e8eb" }, "usage": "Campos de kg y repeticiones, botones secundarios, celdas del calendario dentro de surface." },
+      { "name": "slab", "value": { "dark": "#23272e", "light": "#1a1d22" }, "usage": "Bloque oscuro de marca en ambos temas: portadas de programa, tarjeta Hoy toca, miniaturas. Lleva números en lime y texto text-on-slab." },
+      { "name": "text-on-slab", "value": { "dark": "#f2f3f5", "light": "#f2f3f5" }, "usage": "Texto sobre slab." },
+      { "name": "line", "value": { "dark": "#24272d", "light": "#dadde1" }, "usage": "Separadores y borde superior de la barra de pestañas." },
+      { "name": "line-strong", "value": { "dark": "#3a3e45", "light": "#c4c8ce" }, "usage": "Borde de chips inactivos y botones fantasma." },
+      { "name": "text", "value": { "dark": "#f2f3f5", "light": "#121316" }, "usage": "Texto principal sobre bg, surface y surface-2." },
+      { "name": "text-muted", "value": { "dark": "#9aa0a8", "light": "#5f6670" }, "usage": "Texto secundario: metadatos, etiquetas, valores anteriores. Sobre bg y surface." },
+      { "name": "text-subtle", "value": { "dark": "#8b919a", "light": "#6b717a" }, "usage": "Pestañas inactivas e iconos de apoyo sobre surface. En claro, solo sobre blanco (surface), no sobre bg." },
+      { "name": "warm", "value": { "dark": "#f5a524", "light": "#a35f0a" }, "usage": "Marca de serie de calentamiento (C). Solo ese uso." }
+    ]
+  },
+  "type": {
+    "fonts": [],
+    "families": {
+      "display": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+      "sans": "Inter, system-ui, -apple-system, sans-serif"
+    },
+    "groups": [
+      {
+        "name": "Display",
+        "family": "display",
+        "styles": [
+          { "name": "display-xl", "fontSize": "112px", "lineHeight": 0.8, "fontWeight": 700, "sample": "12", "usage": "Número protagonista de las portadas de programa (semanas, días). En lime sobre slab." },
+          { "name": "display-l", "fontSize": "40px", "lineHeight": 0.95, "fontWeight": 700, "sample": "Pierna y glúteo", "usage": "Título de la sesión de hoy y destacados." },
+          { "name": "screen-title", "fontSize": "38px", "lineHeight": 1, "fontWeight": 700, "sample": "Programas", "usage": "Título de cada pantalla principal." },
+          { "name": "metric", "fontSize": "28px", "lineHeight": 1, "fontWeight": 700, "sample": "6.240 kg", "usage": "Cifras: duración, volumen, precio, temporizador." }
+        ]
+      },
+      {
+        "name": "Texto",
+        "family": "sans",
+        "styles": [
+          { "name": "heading", "fontSize": "18px", "lineHeight": "24px", "fontWeight": 700, "sample": "Tu comunidad", "usage": "Títulos de sección." },
+          { "name": "body-strong", "fontSize": "16px", "lineHeight": "22px", "fontWeight": 600, "sample": "Press banca con barra", "usage": "Nombres de ejercicio, programa y usuario." },
+          { "name": "body", "fontSize": "15px", "lineHeight": "22px", "fontWeight": 400, "sample": "Se añade a tu calendario al instante.", "usage": "Texto corriente." },
+          { "name": "caption", "fontSize": "13px", "lineHeight": "18px", "fontWeight": 500, "sample": "Plan: 4 × 8–10 · descanso 2:00", "usage": "Metadatos y ayudas." },
+          { "name": "label", "fontSize": "11px", "lineHeight": "14px", "fontWeight": 600, "letterSpacing": "0.06em", "sample": "DURACIÓN", "usage": "Etiquetas en mayúsculas sobre cifras y cabeceras de tabla. Escribir en mayúsculas con text-transform." }
+        ]
+      }
+    ]
+  },
+  "spacing": {
+    "tokens": [
+      { "name": "space-1", "value": "4px", "usage": "Entre etiqueta y cifra." },
+      { "name": "space-2", "value": "8px", "usage": "Entre tarjetas de una fila y entre filas de series." },
+      { "name": "space-3", "value": "12px", "usage": "Entre bloques de una tarjeta." },
+      { "name": "space-4", "value": "16px", "usage": "Margen lateral de pantalla y relleno de tarjetas." },
+      { "name": "space-6", "value": "24px", "usage": "Entre secciones." }
+    ]
+  },
+  "radius": {
+    "tokens": [
+      { "name": "radius-sm", "value": "9px", "usage": "Campos de kg y repeticiones, botón de serie hecha." },
+      { "name": "radius-md", "value": "12px", "usage": "Botones, iconos en caja, estadísticas." },
+      { "name": "radius-lg", "value": "18px", "usage": "Tarjetas." },
+      { "name": "radius-xl", "value": "22px", "usage": "Tarjetas destacadas: Hoy toca, programa destacado." },
+      { "name": "radius-pill", "value": "999px", "usage": "Chips de filtro y avatares." }
+    ]
+  },
+  "size": {
+    "tokens": [
+      { "name": "touch-min", "value": "44px", "usage": "Tamaño mínimo de cualquier zona táctil. Se usa con una mano y entre series." },
+      { "name": "button-primary", "value": "52px", "usage": "Altura del botón de acción principal (Comprar, Empezar entreno)." },
+      { "name": "icon", "value": "24px", "usage": "Iconos de línea, trazo 1.8, extremos redondeados." }
+    ]
+  }
+}
