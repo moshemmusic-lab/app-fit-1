@@ -245,10 +245,15 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
-# Uncomment to customize email template
-# [auth.email.template.invite]
-# subject = "You have been invited"
-# content_path = "./supabase/templates/invite.html"
+# The app signs in with a 6-digit code instead of a link. New users get the
+# "confirmation" email and returning users the "magic_link" one, so both show the code.
+[auth.email.template.confirmation]
+subject = "Tu código para entrar en Movyn"
+content_path = "./supabase/templates/sign-in-code.html"
+
+[auth.email.template.magic_link]
+subject = "Tu código para entrar en Movyn"
+content_path = "./supabase/templates/sign-in-code.html"
 
 # Uncomment to customize notification email template
 # [auth.email.notification.password_changed]
@@ -324,10 +329,12 @@ max_frequency = "5s"
 # `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`, `notion`, `twitch`,
 # `twitter`, `x`, `slack_oidc`, `spotify`, `workos`, `zoom`.
 [auth.external.apple]
-enabled = false
-client_id = ""
-# DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
-secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
+enabled = true
+# Native Sign in with Apple: the identity token's audience is the iOS bundle id.
+# "host.exp.Exponent" is Expo Go. Add the app's own bundle id when development builds arrive.
+client_id = "host.exp.Exponent"
+# Only needed for the web OAuth flow, which the app does not use.
+secret = ""
 # Overrides the default auth callback URL derived from auth.external_url.
 redirect_uri = ""
 # Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
