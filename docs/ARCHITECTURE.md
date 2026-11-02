@@ -77,7 +77,12 @@ app-fit-1/
 
 ## 4. Usuarios, cuentas y permisos
 
-**Inicio de sesión:** email (contraseña o enlace mágico), Apple y Google con Supabase Auth. Apple exige ofrecer un inicio de sesión equivalente centrado en la privacidad si hay otros inicios sociales, y Sign in with Apple lo cumple.
+**Inicio de sesión:** email con código de 6 dígitos (sin contraseña), Apple y Google con Supabase Auth. Apple exige ofrecer un inicio de sesión equivalente centrado en la privacidad si hay otros inicios sociales, y Sign in with Apple lo cumple.
+
+- **Email:** `signInWithOtp` envía un código y la app lo verifica con `verifyOtp`. Sin enlaces que abran la app, así funciona igual en Expo Go y en las builds.
+- **Apple:** inicio nativo (`expo-apple-authentication` + `signInWithIdToken` con nonce). En desarrollo el `client_id` es `host.exp.Exponent` (Expo Go); con las builds propias se añade el bundle id de la app.
+- **Google:** se activa en el paso 9 (beta). Necesita una development build (no funciona en Expo Go) y un proyecto de Supabase accesible desde internet.
+- La sesión se guarda en el móvil (`expo-sqlite/localStorage`) y la caché de TanStack Query también, para abrir la app sin conexión.
 
 **Roles**
 | Rol | Cómo se obtiene | Puede |
@@ -99,7 +104,8 @@ Convenciones: claves `uuid`; `created_at` / `updated_at` en todo; borrado lógic
 ### 5.1 Usuarios y social
 | Tabla | Para qué | Campos clave |
 | --- | --- | --- |
-| `profiles` | Perfil público de cada usuario (1:1 con `auth.users`) | username, display_name, avatar_url, bio, units (kg/lb), locale, country, is_private, role, health_data_consent_at |
+| `profiles` | Perfil público de cada usuario (1:1 con `auth.users`); lo ve cualquier usuario con sesión | username, display_name, avatar_path, bio, is_private, role |
+| `user_settings` | Preferencias y consentimientos privados (1:1 con `auth.users`); solo los ve su dueño | units (kg/lb), locale, training_goal, experience_level, default_workout_visibility, notify_social, notify_reminders, health_data_consent_at, onboarding_completed_at |
 | `follows` | Quién sigue a quién | follower_id, following_id, status (pending/accepted para perfiles privados) |
 | `likes`, `comments` | Interacción con entrenos compartidos | user_id, workout_id, body |
 | `reports` | Denuncias de contenido | reporter_id, target_type, target_id, reason, status |
@@ -212,6 +218,9 @@ El `tracking_type` decide qué campos de la serie se usan. Así el mismo modelo 
 - RLS en todas las tablas; nada sensible se lee sin pasar por ella.
 - Claves y secretos en Supabase Secrets, EAS Secrets y Vercel, nunca en el repositorio.
 - **Exportar datos** (Edge Function `export-data`, JSON y CSV) y **borrar cuenta** desde la app (`delete-account`): se borra el contenido del usuario y se anonimizan las compras que deban conservarse por contabilidad.
+- **Privacidad por defecto** (RGPD art. 25): los entrenos nuevos son «solo seguidores» salvo que el usuario elija otra cosa (`user_settings.default_workout_visibility`).
+- Las filas de `profiles` y `user_settings` las crea un trigger al registrarse. Desde la app solo se pueden editar las columnas permitidas (privilegios por columna): nadie puede cambiar su `role` ni escribir la fecha de consentimiento, que solo registra `complete_onboarding()` con la hora del servidor.
+- Fotos de perfil en el bucket público `avatars`, cada usuario solo escribe en su carpeta (`<user_id>/…`); en la base de datos se guarda la ruta (`avatar_path`), no la URL.
 - Copias de seguridad automáticas (restauración a un punto en el tiempo en el plan de pago de Supabase).
 - Webhooks siempre con verificación de firma e idempotencia (un mismo evento nunca crea dos compras).
 - Registro en `audit_logs` de pagos, reembolsos, cambios de programa y acciones de administración.

@@ -72,7 +72,9 @@ Desde la raíz del repositorio, la carpeta `app-fit-1` (requiere Node 24 y pnpm 
 - `pnpm --filter web dev`: web en http://localhost:3000.
 - `pnpm typecheck` · `pnpm lint` · `pnpm test` · `pnpm format` (Prettier).
 - `pnpm tokens`: regenera el tema (`packages/shared/src/theme/tokens.generated.ts`) tras editar `docs/design-tokens.json`. Un test falla si no están sincronizados.
-- `pnpm db:start`: base de datos local (requiere Docker) · `pnpm db:reset`: aplicar migraciones y datos iniciales · `pnpm db:test`: tests de base de datos (RLS).
+- `pnpm db:start`: base de datos local (requiere Docker) · `pnpm db:reset`: aplicar migraciones y datos iniciales · `pnpm db:test`: tests de base de datos (RLS) · `pnpm db:types`: regenera `packages/shared/src/database.types.ts` (el CI falla si no está al día).
+- Emails en local (códigos de inicio de sesión): no salen a internet, se ven en http://127.0.0.1:54324.
+- Variables de entorno de la app móvil: `apps/mobile/.env` (copiar de `apps/mobile/.env.example` con los valores de `pnpm db:start`).
 - Dependencias de la app móvil: instalar siempre con `npx expo install <paquete>` desde `apps/mobile` (elige versiones compatibles con Expo Go).
 
 ## Notas técnicas del monorepo
@@ -81,4 +83,5 @@ Desde la raíz del repositorio, la carpeta `app-fit-1` (requiere Node 24 y pnpm 
 - `pnpm-workspace.yaml` usa `nodeLinker: hoisted` y fija una única versión de React para Expo y Next.
 - Tema: `@app-fit/shared/theme` (colores por modo, tipografía, espaciado, radios y tamaños). En el móvil, `useTheme()` y los componentes de `components/ui`; en la web, variables CSS (`--color-bg`, `--space-4`…).
 - Textos: `packages/shared/src/i18n/locales/es.ts`. En el móvil se usan con `useTranslation()` (claves con tipos).
-- Rutas del móvil en inglés: `app/(tabs)/index` (Inicio), `workout`, `programs`, `progress`, `profile`.
+- Rutas del móvil en inglés: `app/(tabs)/index` (Inicio), `workout`, `programs`, `progress`, `profile`, más `sign-in`, `verify-code`, `onboarding`, `edit-profile` y `settings`. `app/_layout.tsx` decide qué parte es accesible con `Stack.Protected` (sin sesión → entrar; sin onboarding → onboarding; si no → la app).
+- Datos del servidor con TanStack Query (`features/<feature>/api.ts`); la caché se guarda en el móvil para abrir sin conexión. Errores de Supabase → mensajes con `useErrorMessage()`.

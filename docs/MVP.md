@@ -1,7 +1,7 @@
 # MVP.md — App Fit 1
 
 > **Qué desarrollamos primero para lanzar la app al mercado.** Qué es imprescindible y qué puede esperar.
-> Última actualización: 27/10/2026. Documentos relacionados: [PRODUCT.md](./PRODUCT.md) y [ARCHITECTURE.md](./ARCHITECTURE.md).
+> Última actualización: 02/11/2026. Documentos relacionados: [PRODUCT.md](./PRODUCT.md) y [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ---
 
@@ -153,14 +153,14 @@ Las fechas suponen una dedicación semanal alta; se ajustan a las horas reales d
 Cada paso es una funcionalidad completa de punta a punta (base de datos → lógica → pantalla) que se puede probar.
 
 1. Repositorio (monorepo), `CLAUDE.md`, Supabase local y CI.
-2. Autenticación, onboarding y perfil.
+2. Autenticación (email con código y Apple), onboarding, perfil, ajustes y borrar cuenta.
 3. Biblioteca de ejercicios (modelo, traducciones, datos iniciales propios o con licencia).
 4. **Registrar un entreno** sin conexión + sincronización.
 5. Rutinas y carpetas.
 6. Historial, PRs y gráficas de progreso.
 7. Seguir, feed, me gusta, comentarios, visibilidad y denuncias.
 8. Compartir en stories.
-9. **Beta cerrada** (TestFlight y prueba interna de Google Play) → medir activación y retención.
+9. **Beta cerrada** (TestFlight y prueba interna de Google Play) → medir activación y retención. Antes: inicio de sesión con Google (necesita development build) y «Exportar mis datos» (decidido el 02/11/2026: se hace cuando ya hay entrenos e historial que exportar, tras el paso 6).
 10. Modelo de programas (versiones, sesiones, prescripciones, entitlements) + panel mínimo de creador.
 11. Programas en la app: «Mis programas», fecha de inicio, «Hoy toca», progreso frente al plan → programas piloto gratuitos.
 12. Feed y ranking de la cohorte.
