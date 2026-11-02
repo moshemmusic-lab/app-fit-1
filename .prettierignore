@@ -1,0 +1,13 @@
+pnpm-lock.yaml
+node_modules/
+.turbo/
+.expo/
+.next/
+dist/
+coverage/
+supabase/.temp/
+packages/shared/src/theme/tokens.generated.ts
+
+# Hand-written product docs keep their own formatting
+docs/
+*.md
