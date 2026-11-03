@@ -78,6 +78,22 @@ describe('filterExercises', () => {
     );
   });
 
+  it('ranks an exact alias above scattered word matches', () => {
+    const benchVariants: SearchableExercise[] = [
+      {
+        name: 'Press de banca con agarre estrecho',
+        keywords: ['press cerrado', 'Tríceps', 'Barra'],
+        primaryMuscle: 'triceps',
+        equipment: 'barbell',
+      },
+      ...library,
+    ];
+    expect(names(filterExercises(benchVariants, { ...noFilters, query: 'press banca' }))).toEqual([
+      'Press de banca con barra',
+      'Press de banca con agarre estrecho',
+    ]);
+  });
+
   it('filters by primary muscle and equipment', () => {
     expect(names(filterExercises(library, { ...noFilters, muscle: 'chest' }))).toEqual([
       'Aperturas en máquina',
