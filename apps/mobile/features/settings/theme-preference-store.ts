@@ -1,25 +1,26 @@
-import { defaultThemeMode, type ThemeMode } from '@app-fit/shared/theme';
-import { create } from 'zustand';
+import 'expo-sqlite/localStorage/install';
 
-export type ThemePreference = ThemeMode | 'system';
+import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
+
+import { defaultThemePreference, type ThemePreference } from './theme-mode';
 
 interface ThemePreferenceState {
   preference: ThemePreference;
   setPreference: (preference: ThemePreference) => void;
 }
 
-// Not persisted yet: it resets to dark when the app restarts. Saving it belongs
-// to the settings screen (MVP step 2).
-export const useThemePreferenceStore = create<ThemePreferenceState>()((set) => ({
-  preference: defaultThemeMode,
-  setPreference: (preference) => set({ preference }),
-}));
-
-export function resolveThemeMode(
-  preference: ThemePreference,
-  systemScheme: string | null | undefined,
-): ThemeMode {
-  if (preference !== 'system') return preference;
-  // Dark is the default whenever the system does not explicitly ask for light.
-  return systemScheme === 'light' ? 'light' : 'dark';
-}
+// Saved on the phone (not in the account): each device can look different.
+export const useThemePreferenceStore = create<ThemePreferenceState>()(
+  persist(
+    (set) => ({
+      preference: defaultThemePreference,
+      setPreference: (preference) => set({ preference }),
+    }),
+    {
+      name: 'movyn-theme-preference',
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({ preference: state.preference }),
+    },
+  ),
+);

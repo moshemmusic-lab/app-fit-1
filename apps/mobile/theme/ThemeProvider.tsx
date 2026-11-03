@@ -5,10 +5,8 @@ import * as SystemUI from 'expo-system-ui';
 import { createContext, use, useEffect, useMemo, type ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
 
-import {
-  resolveThemeMode,
-  useThemePreferenceStore,
-} from '@/features/settings/theme-preference-store';
+import { resolveThemeMode } from '@/features/settings/theme-mode';
+import { useThemePreferenceStore } from '@/features/settings/theme-preference-store';
 
 const ThemeContext = createContext<Theme>(themes.dark);
 

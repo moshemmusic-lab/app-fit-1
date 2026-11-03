@@ -44,3 +44,22 @@ jobs:
       # Starts only Postgres (Docker is preinstalled on GitHub runners) and applies migrations.
       - run: pnpm exec supabase db start
       - run: pnpm exec supabase test db
+      - name: Database types are up to date (run `pnpm db:types` after changing the schema)
+        run: |
+          pnpm db:types
+          git diff --exit-code packages/shared/src/database.types.ts
+
+  functions:
+    name: Edge Functions (Deno)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check and lint each function
+        run: |
+          for dir in supabase/functions/*/; do
+            (cd "$dir" && deno check index.ts && deno lint index.ts)
+          done

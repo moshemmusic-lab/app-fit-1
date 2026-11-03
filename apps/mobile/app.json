@@ -8,7 +8,8 @@
     "scheme": "appfit1",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "usesAppleSignIn": true
     },
     "android": {
       "adaptiveIcon": {
@@ -27,6 +28,15 @@
           "backgroundColor": "#0e0f11",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
+        }
+      ],
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Movyn usa tus fotos solo para tu foto de perfil.",
+          "cameraPermission": false,
+          "microphonePermission": false
         }
       ]
     ],
