@@ -18,7 +18,17 @@ export interface DraftExercise {
   /** Exercise from the library (exercises.id). */
   exerciseId: string;
   notes: string;
+  /** Rest started after each completed set. Null = no rest timer for this exercise. */
+  restSeconds: number | null;
   sets: DraftSet[];
+}
+
+/** The rest countdown. Stored as an end time, so it keeps running with the app closed. */
+export interface RestTimer {
+  endsAt: string;
+  durationS: number;
+  /** Local notification announcing the end, to cancel it if the rest changes. */
+  notificationId: string | null;
 }
 
 /** The workout in progress. Saved on the phone after every change. */
@@ -78,5 +88,14 @@ export interface WorkoutSummary {
   exerciseCount: number;
 }
 
+/** A completed set remembered to prefill the next workout. */
+export interface LastSet extends SetValues {
+  /** Missing in data saved before set types existed. */
+  setType?: WorkoutSetType;
+}
+
 /** Last completed sets per exercise, to prefill the next workout. */
-export type LastSetsByExercise = Record<string, SetValues[]>;
+export type LastSetsByExercise = Record<string, LastSet[]>;
+
+/** Rest chosen per exercise (null = no rest), remembered for next time. */
+export type RestByExercise = Record<string, number | null>;

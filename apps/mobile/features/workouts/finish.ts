@@ -3,6 +3,7 @@ import { emptySetValues, workoutVolumeKg, type SetValues } from '@app-fit/shared
 import type {
   ActiveWorkout,
   DraftSet,
+  LastSet,
   LastSetsByExercise,
   WorkoutPayload,
   WorkoutSummary,
@@ -18,18 +19,28 @@ export function toSetValues(set: SetValues): SetValues {
   };
 }
 
-/** New sets for an exercise: as many as last time (at least one), empty but ready to prefill. */
+/**
+ * New sets for an exercise: as many as last time (at least one) and of the same types
+ * (warm-ups first, as before), empty but ready to prefill.
+ */
 export function newDraftSets(
-  previous: readonly SetValues[] | undefined,
+  previous: readonly LastSet[] | undefined,
   newId: () => string,
 ): DraftSet[] {
   const count = Math.max(previous?.length ?? 0, 1);
-  return Array.from({ length: count }, () => ({
+  return Array.from({ length: count }, (_, index) => ({
     ...emptySetValues,
     id: newId(),
-    setType: 'normal',
+    // Saved before set types existed: those count as normal sets.
+    setType: previous?.[index]?.setType ?? 'normal',
     completedAt: null,
   }));
+}
+
+/** Working sets are numbered 1, 2, 3…; warm-ups get no number. */
+export function numberSets(sets: readonly Pick<DraftSet, 'setType'>[]): (number | null)[] {
+  let count = 0;
+  return sets.map((set) => (set.setType === 'warmup' ? null : ++count));
 }
 
 export function completedSetCount(workout: ActiveWorkout): number {
@@ -54,9 +65,14 @@ export interface FinishedWorkout {
 
 /**
  * Turns the workout in progress into what gets uploaded. Only completed sets are kept, and
- * exercises without any are left out. Positions are renumbered from 0.
+ * exercises without any are left out. Positions are renumbered from 0. An empty title takes
+ * `fallbackTitle`, because the server rejects it and the workout would never upload.
  */
-export function finishWorkout(workout: ActiveWorkout, endedAt: Date): FinishedWorkout {
+export function finishWorkout(
+  workout: ActiveWorkout,
+  endedAt: Date,
+  fallbackTitle: string,
+): FinishedWorkout {
   const exercises = workout.exercises
     .map((exercise) => ({
       ...exercise,
@@ -72,8 +88,8 @@ export function finishWorkout(workout: ActiveWorkout, endedAt: Date): FinishedWo
 
   const payload: WorkoutPayload = {
     id: workout.id,
-    title: workout.title,
-    notes: workout.notes,
+    title: workout.title.trim().slice(0, 80) || fallbackTitle,
+    notes: workout.notes.trim().slice(0, 2000),
     visibility: workout.visibility,
     started_at: workout.startedAt,
     ended_at: end.toISOString(),
@@ -81,7 +97,7 @@ export function finishWorkout(workout: ActiveWorkout, endedAt: Date): FinishedWo
       id: exercise.id,
       exercise_id: exercise.exerciseId,
       position,
-      notes: exercise.notes,
+      notes: exercise.notes.trim().slice(0, 1000),
       sets: exercise.sets.map((set, setPosition) => ({
         id: set.id,
         position: setPosition,
@@ -98,8 +114,16 @@ export function finishWorkout(workout: ActiveWorkout, endedAt: Date): FinishedWo
 
   const lastSets: LastSetsByExercise = {};
   for (const exercise of exercises) {
-    lastSets[exercise.exerciseId] = exercise.sets.map(toSetValues);
+    lastSets[exercise.exerciseId] = exercise.sets.map((set) => ({
+      ...toSetValues(set),
+      setType: set.setType,
+    }));
   }
+
+  // Warm-ups are not counted in the summary: volume and sets are the working sets.
+  const workingSets = exercises.map((exercise) => ({
+    sets: exercise.sets.filter((set) => set.setType !== 'warmup'),
+  }));
 
   return {
     payload,
@@ -107,8 +131,8 @@ export function finishWorkout(workout: ActiveWorkout, endedAt: Date): FinishedWo
     summary: {
       workoutId: workout.id,
       durationS: Math.round((end.getTime() - startedAt.getTime()) / 1000),
-      volumeKg: workoutVolumeKg(exercises),
-      setCount: exercises.reduce((total, exercise) => total + exercise.sets.length, 0),
+      volumeKg: workoutVolumeKg(workingSets),
+      setCount: workingSets.reduce((total, exercise) => total + exercise.sets.length, 0),
       exerciseCount: exercises.length,
     },
   };

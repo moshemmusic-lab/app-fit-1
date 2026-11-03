@@ -14,7 +14,10 @@ import { SetInput } from './SetInput';
 export const SET_NUMBER_WIDTH = 36;
 
 interface SetRowProps {
-  number: number;
+  /** What the first column shows: the set number, or C/D/F for warm-up, drop and failure sets. */
+  label: string;
+  /** Accessible name used inside sentences ("serie 2", "serie de calentamiento"). */
+  setName: string;
   set: DraftSet;
   /** Inputs of the row with their column name (also used as accessible name). */
   fields: readonly (DisplayField & { label: string })[];
@@ -29,10 +32,12 @@ interface SetRowProps {
 
 /**
  * One set: number, last time, inputs and the check. Done = lime check **and** filled
- * button, so the state does not rely on color alone (docs/DESIGN.md).
+ * button, so the state does not rely on color alone (docs/DESIGN.md). Warm-ups are marked
+ * in `warm`, the only use of that color.
  */
 export function SetRow({
-  number,
+  label,
+  setName,
   set,
   fields,
   suggestion,
@@ -44,12 +49,13 @@ export function SetRow({
   const { t } = useTranslation();
   const { colors, radius, sizes, spacing } = useTheme();
   const done = set.completedAt !== null;
+  const isWarmup = set.setType === 'warmup';
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing[2] }}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={t('activeWorkout.setOptions', { number })}
+        accessibilityLabel={t('activeWorkout.setOptions', { set: setName })}
         onPress={onOptions}
         hitSlop={spacing[1]}
         style={({ pressed }) => ({
@@ -60,8 +66,8 @@ export function SetRow({
           opacity: pressed ? 0.6 : 1,
         })}
       >
-        <Text variant="bodyStrong" color={done ? 'text' : 'textMuted'}>
-          {number}
+        <Text variant="bodyStrong" color={isWarmup ? 'warm' : done ? 'text' : 'textMuted'}>
+          {label}
         </Text>
       </Pressable>
 
@@ -69,14 +75,14 @@ export function SetRow({
         {previousLabel ?? '—'}
       </Text>
 
-      {fields.map(({ field, kind, label, toDisplay, fromDisplay }) => {
+      {fields.map(({ field, kind, label: fieldLabel, toDisplay, fromDisplay }) => {
         const value = set[field];
         const suggested = suggestion?.[field] ?? null;
         return (
           <SetInput
             key={field}
             kind={kind}
-            accessibilityLabel={`${label} · ${t('activeWorkout.columns.set')} ${number}`}
+            accessibilityLabel={t('activeWorkout.inputLabel', { field: fieldLabel, set: setName })}
             value={value === null ? null : toDisplay(value)}
             placeholder={suggested === null ? null : toDisplay(suggested)}
             onChange={(next) => onChange({ [field]: next === null ? null : fromDisplay(next) })}
@@ -89,8 +95,8 @@ export function SetRow({
         accessibilityState={{ checked: done }}
         accessibilityLabel={
           done
-            ? t('activeWorkout.uncompleteSet', { number })
-            : t('activeWorkout.completeSet', { number })
+            ? t('activeWorkout.uncompleteSet', { set: setName })
+            : t('activeWorkout.completeSet', { set: setName })
         }
         onPress={onToggleComplete}
         style={({ pressed }) => ({
