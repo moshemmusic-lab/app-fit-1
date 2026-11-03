@@ -46,7 +46,7 @@ Las fechas suponen una dedicación semanal alta; se ajustan a las horas reales d
 - [ ] Exportar mis datos y borrar mi cuenta. *Borrar cuenta, hecho (paso 2); exportar, tras el paso 6.*
 
 ### 4.2 Registro de entrenos (fase 1)
-- [ ] Empezar un entreno vacío, desde una rutina o desde la sesión de hoy de un programa. *Vacío, hecho (paso 4); desde una rutina en el paso 5 y desde un programa en el paso 11.*
+- [ ] Empezar un entreno vacío, desde una rutina o desde la sesión de hoy de un programa. *Vacío y desde una rutina, hechos (pasos 4 y 5); desde un programa en el paso 11.*
 - [ ] Biblioteca de ejercicios en español con buscador, filtros por músculo y material, vídeo o imagen e instrucciones. *148 ejercicios propios con buscador, filtros e instrucciones, hechos (paso 3); faltan el vídeo o la imagen, que se deciden antes de la beta.*
 - [x] Ejercicios de fuerza (peso × repeticiones, peso corporal) y de cardio (tiempo, distancia, calorías).
 - [x] Valores de la última vez rellenados; marcar una serie en **2 toques**.
@@ -57,10 +57,10 @@ Las fechas suponen una dedicación semanal alta; se ajustan a las horas reales d
 - [ ] Resumen al terminar: duración, volumen, PRs conseguidos y botón de compartir. *Duración, volumen y series, hechos (paso 4); los PRs llegan en el paso 6 y el botón de compartir en el paso 8.*
 
 ### 4.3 Rutinas (fase 1)
-- [ ] Crear, editar, duplicar y borrar rutinas; organizarlas en carpetas.
-- [ ] Copiar rutinas de otros usuarios y guardarlas.
+- [x] Crear, editar, duplicar y borrar rutinas; organizarlas en carpetas.
+- [ ] Copiar rutinas de otros usuarios y guardarlas. *Con el paso 7 (hace falta poder ver perfiles); la base de datos ya está preparada.*
 - [ ] Ejercicios personalizados.
-- [ ] Límites del plan gratuito (iguales o algo más generosos que Hevy).
+- [ ] Límites del plan gratuito (iguales o algo más generosos que Hevy). *Con el Pro (paso 14), para no poner un límite sin forma de quitarlo.*
 
 ### 4.4 Progreso (fase 1)
 - [ ] Historial de entrenos con calendario de constancia.
