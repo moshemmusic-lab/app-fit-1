@@ -10,6 +10,7 @@ import { useEffect } from 'react';
 import { useSettings } from '@/features/account/api';
 import { StartupError } from '@/features/auth/components/StartupError';
 import { SessionProvider, useSession } from '@/features/auth/session';
+import { useWorkoutSync } from '@/features/workouts/sync';
 import { persistOptions, queryClient } from '@/lib/query-client';
 import { fontAssets } from '@/theme/fonts';
 import { ThemeProvider } from '@/theme/ThemeProvider';
@@ -47,6 +48,8 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
   const settingsUnavailable =
     isSignedIn && !hasSettings && (settings.isError || settings.fetchStatus === 'paused');
   const isCheckingAccount = isSignedIn && !hasSettings && !settingsUnavailable;
+  // Uploads finished workouts whenever possible, whatever screen is open.
+  useWorkoutSync(isSignedIn && isOnboarded ? session.user.id : undefined);
   // On a cold start keep the splash while the account loads. Right after signing in,
   // stay on the sign-in screens instead (see the guards below).
   const isReady =
@@ -86,6 +89,9 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
         <Stack.Screen name="settings" />
         <Stack.Screen name="exercises/index" />
         <Stack.Screen name="exercises/[id]" />
+        <Stack.Screen name="exercises/pick" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="active-workout" />
+        <Stack.Screen name="workout-summary" options={{ gestureEnabled: false }} />
       </Stack.Protected>
     </Stack>
   );
