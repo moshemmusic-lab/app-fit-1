@@ -69,10 +69,10 @@ app-fit-1/
 ├── packages/
 │   └── shared/               # Tema (generado desde design-tokens.json), i18n, tipos de la BD, esquemas Zod, progresión, 1RM
 └── supabase/
-    ├── migrations/           # SQL versionado (única forma de cambiar la BD)
+    ├── migrations/           # SQL versionado (única forma de cambiar la BD), incluida la biblioteca de ejercicios
     ├── functions/            # Edge Functions: stripe-webhook, revenuecat-webhook, export-data, delete-account…
     ├── tests/database/       # Tests pgTAP (RLS activada en todas las tablas, políticas)
-    └── seed.sql              # Biblioteca de ejercicios inicial
+    └── seed.sql              # Datos de prueba solo para local
 ```
 
 ## 4. Usuarios, cuentas y permisos
@@ -113,10 +113,16 @@ Convenciones: claves `uuid`; `created_at` / `updated_at` en todo; borrado lógic
 ### 5.2 Ejercicios
 | Tabla | Para qué | Campos clave |
 | --- | --- | --- |
-| `exercises` | Biblioteca global y ejercicios personalizados | tracking_type (weight_reps, bodyweight_reps, duration, distance_duration, calories_duration), **disciplines[]**, primary_muscle, secondary_muscles[], equipment, video_url, owner_id (null = global) |
-| `exercise_translations` | Nombre e instrucciones por idioma y país | exercise_id, locale («es-ES», «es-MX»), name, instructions, aliases[] |
+| `exercises` | Biblioteca global y ejercicios personalizados | slug (solo los globales), tracking_type (weight_reps, bodyweight_reps, duration, distance_duration, calories_duration), **disciplines[]**, primary_muscle, secondary_muscles[], equipment, owner_id (null = global) |
+| `exercise_translations` | Nombre e instrucciones por idioma y país | exercise_id, locale («es-ES», «es-MX»), name, aliases[], instructions[] (un paso por elemento) |
 
 El `tracking_type` decide qué campos de la serie se usan. Así el mismo modelo sirve para fuerza, cardio y, en el futuro, otros deportes.
+
+- Tipo de registro, músculos, material y disciplina son tipos enumerados de Postgres. Los tipos generados para TypeScript (`packages/shared`) salen de ellos, así que la app y la base de datos no se desincronizan.
+- **La biblioteca global llega por migraciones**, no por `seed.sql`, para que exista igual en local, staging y producción. Cada ejercicio global tiene un `slug` estable: para añadir o corregir ejercicios se escribe una migración nueva que los busca por `slug`.
+- Desde la app es de solo lectura: cualquier usuario con sesión lee los globales y los suyos. Los ejercicios personalizados (con `owner_id`) llegan en el paso 5, que añadirá los permisos de escritura.
+- La app descarga la biblioteca entera (unos 150 ejercicios), la guarda en el móvil y busca allí: funciona sin conexión. La búsqueda ignora tildes y mayúsculas y mira nombre, otros nombres, músculo y material.
+- Las imágenes y los vídeos todavía no están: se añadirán con una migración (columna de medios) cuando se decida su origen (§12).
 
 ### 5.3 Rutinas
 | Tabla | Para qué | Campos clave |
@@ -261,4 +267,5 @@ Errores y rendimiento en Sentry (app y web), con especial atención a los fallos
 - [ ] Vendedor legal ante el comprador (plataforma o creador) → determina la configuración de Stripe Connect (tipo de cuenta y de cargo).
 - [ ] Viabilidad y modelo de venta de programas dentro de la app (§6.3).
 - [ ] Sincronización: cola propia sobre SQLite o una librería especializada (PowerSync, WatermelonDB).
-- [ ] Origen de la biblioteca de ejercicios inicial y de sus vídeos: tiene que ser propia o con licencia, nunca copiada de otra app.
+- [x] Origen de la biblioteca de ejercicios inicial: **propia** (decidido el 03/11/2026). Los 148 ejercicios del paso 3, con sus nombres, otros nombres e instrucciones, se escribieron para Movyn. Se descartaron bases abiertas de origen poco claro y bases CC-BY-SA, que obligan a citar al autor en cada ejercicio y a compartir lo que se añada.
+- [ ] Origen de las imágenes y los vídeos de los ejercicios: propios o con licencia, nunca copiados de otra app. Hay que decidirlo antes de la beta (paso 9); las opciones son grabarlos con los creadores piloto, encargarlos o comprar un paquete con licencia comercial.

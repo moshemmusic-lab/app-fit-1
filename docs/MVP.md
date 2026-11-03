@@ -47,7 +47,7 @@ Las fechas suponen una dedicación semanal alta; se ajustan a las horas reales d
 
 ### 4.2 Registro de entrenos (fase 1)
 - [ ] Empezar un entreno vacío, desde una rutina o desde la sesión de hoy de un programa.
-- [ ] Biblioteca de ejercicios en español con buscador, filtros por músculo y material, vídeo o imagen e instrucciones.
+- [ ] Biblioteca de ejercicios en español con buscador, filtros por músculo y material, vídeo o imagen e instrucciones. *148 ejercicios propios con buscador, filtros e instrucciones, hechos (paso 3); faltan el vídeo o la imagen, que se deciden antes de la beta.*
 - [ ] Ejercicios de fuerza (peso × repeticiones, peso corporal) y de cardio (tiempo, distancia, calorías).
 - [ ] Valores de la última vez rellenados; marcar una serie en **2 toques**.
 - [ ] Temporizador de descanso automático y configurable.
