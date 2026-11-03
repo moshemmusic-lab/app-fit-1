@@ -118,7 +118,7 @@ Las fechas suponen una dedicación semanal alta; se ajustan a las horas reales d
 ## 5. Para después
 
 ### V2 (tras el lanzamiento)
-- Supersets, tipos de serie (calentamiento, aproximación, fallo), RPE/RIR, calculadora de discos y de calentamiento.
+- Supersets, series de aproximación, RPE/RIR, calculadora de discos y de calentamiento. *(Calentamiento, drop set y fallo ya están desde el paso 4.)*
 - Medidas y fotos de progreso.
 - Series por grupo muscular, informe mensual e historial completo (Pro).
 - **Retos sociales:** rankings por ejercicio y desafíos entre amigos.
@@ -154,8 +154,8 @@ Cada paso es una funcionalidad completa de punta a punta (base de datos → lóg
 
 1. Repositorio (monorepo), `CLAUDE.md`, Supabase local y CI. *Hecho.*
 2. Autenticación (email con código y Apple), onboarding, perfil, ajustes y borrar cuenta. *Hecho (probado en simulador y en iPhone el 03/11/2026).*
-3. Biblioteca de ejercicios (modelo, traducciones, datos iniciales propios o con licencia).
-4. **Registrar un entreno** sin conexión + sincronización.
+3. Biblioteca de ejercicios (modelo, traducciones, datos iniciales propios o con licencia). *Hecho (148 ejercicios propios).*
+4. **Registrar un entreno** sin conexión + sincronización. *Hecho (probado en simulador el 03/11/2026).*
 5. Rutinas y carpetas.
 6. Historial, PRs y gráficas de progreso.
 7. Seguir, feed, me gusta, comentarios, visibilidad y denuncias.
