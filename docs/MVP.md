@@ -48,13 +48,13 @@ Las fechas suponen una dedicación semanal alta; se ajustan a las horas reales d
 ### 4.2 Registro de entrenos (fase 1)
 - [ ] Empezar un entreno vacío, desde una rutina o desde la sesión de hoy de un programa.
 - [ ] Biblioteca de ejercicios en español con buscador, filtros por músculo y material, vídeo o imagen e instrucciones. *148 ejercicios propios con buscador, filtros e instrucciones, hechos (paso 3); faltan el vídeo o la imagen, que se deciden antes de la beta.*
-- [ ] Ejercicios de fuerza (peso × repeticiones, peso corporal) y de cardio (tiempo, distancia, calorías).
-- [ ] Valores de la última vez rellenados; marcar una serie en **2 toques**.
+- [x] Ejercicios de fuerza (peso × repeticiones, peso corporal) y de cardio (tiempo, distancia, calorías).
+- [x] Valores de la última vez rellenados; marcar una serie en **2 toques**.
 - [ ] Temporizador de descanso automático y configurable.
 - [ ] Añadir, quitar, reordenar y sustituir ejercicios durante el entreno.
 - [ ] Notas por ejercicio y por entreno.
-- [ ] **Funciona sin conexión** y sincroniza al recuperarla.
-- [ ] Resumen al terminar: duración, volumen, PRs conseguidos y botón de compartir.
+- [x] **Funciona sin conexión** y sincroniza al recuperarla.
+- [ ] Resumen al terminar: duración, volumen, PRs conseguidos y botón de compartir. *Duración, volumen y series, hechos (paso 4); los PRs llegan en el paso 6 y el botón de compartir en el paso 8.*
 
 ### 4.3 Rutinas (fase 1)
 - [ ] Crear, editar, duplicar y borrar rutinas; organizarlas en carpetas.
