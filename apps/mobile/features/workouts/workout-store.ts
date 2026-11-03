@@ -4,7 +4,7 @@ import 'expo-sqlite/localStorage/install';
 
 import type { TrackingType } from '@app-fit/shared/exercises';
 import type { WorkoutVisibility } from '@app-fit/shared/schemas';
-import type { SetValues } from '@app-fit/shared/workouts';
+import { emptySetValues, type SetValues } from '@app-fit/shared/workouts';
 import * as Crypto from 'expo-crypto';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -29,6 +29,18 @@ export interface PickedExercise {
   trackingType: TrackingType;
 }
 
+/** A routine turned into a workout plan (see features/routines/routine-logic.ts). */
+export interface PlannedWorkout {
+  routineId: string;
+  title: string;
+  exercises: {
+    exerciseId: string;
+    restSeconds: number | null;
+    notes: string;
+    sets: { setType: WorkoutSetType; target: SetValues | null }[];
+  }[];
+}
+
 interface PersistedWorkoutState {
   /** The workout in progress (at most one per phone). */
   active: ActiveWorkout | null;
@@ -46,6 +58,9 @@ interface PersistedWorkoutState {
 
 interface WorkoutState extends PersistedWorkoutState {
   start: (input: { userId: string; title: string; visibility: WorkoutVisibility }) => void;
+  startFromRoutine: (
+    input: { userId: string; visibility: WorkoutVisibility } & PlannedWorkout,
+  ) => void;
   setTitle: (title: string) => void;
   setNotes: (notes: string) => void;
   addExercises: (exercises: readonly PickedExercise[]) => void;
@@ -119,11 +134,44 @@ export const useWorkoutStore = create<WorkoutState>()(
             active: {
               id: Crypto.randomUUID(),
               userId,
+              routineId: null,
               title,
               notes: '',
               visibility,
               startedAt: new Date().toISOString(),
               exercises: [],
+            },
+          });
+        },
+
+        // The routine's sets and rests; last time's values are still suggested first.
+        startFromRoutine: ({ userId, visibility, routineId, title, exercises }) => {
+          if (get().active) return;
+          set({
+            active: {
+              id: Crypto.randomUUID(),
+              userId,
+              routineId,
+              title,
+              notes: '',
+              visibility,
+              startedAt: new Date().toISOString(),
+              exercises: exercises.map((exercise) => ({
+                id: Crypto.randomUUID(),
+                exerciseId: exercise.exerciseId,
+                notes: exercise.notes,
+                restSeconds: exercise.restSeconds,
+                sets: (exercise.sets.length > 0
+                  ? exercise.sets
+                  : [{ setType: 'normal' as const, target: null }]
+                ).map(({ setType, target }) => ({
+                  ...emptySetValues,
+                  id: Crypto.randomUUID(),
+                  setType,
+                  completedAt: null,
+                  target,
+                })),
+              })),
             },
           });
         },
@@ -338,7 +386,7 @@ export const useWorkoutStore = create<WorkoutState>()(
     },
     {
       name: 'movyn-workouts',
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() => localStorage),
       partialize: (state): PersistedWorkoutState => ({
         active: state.active,
@@ -348,20 +396,22 @@ export const useWorkoutStore = create<WorkoutState>()(
         restTimer: state.restTimer,
         lastSummary: state.lastSummary,
       }),
-      // Version 1 (step 4, part 1) had no rests: a workout in progress keeps working.
+      // A workout in progress saved by an older version keeps working:
+      // version 1 (step 4, part 1) had no rests, version 2 had no routine link.
       migrate: (persisted, version) => {
         const state = persisted as Partial<PersistedWorkoutState>;
-        if (version >= 2) return state;
+        if (version >= 3) return state;
         return {
           ...state,
-          restByUser: {},
-          restTimer: null,
+          restByUser: state.restByUser ?? {},
+          restTimer: state.restTimer ?? null,
           active: state.active
             ? {
                 ...state.active,
+                routineId: state.active.routineId ?? null,
                 exercises: state.active.exercises.map((exercise) => ({
                   ...exercise,
-                  restSeconds: exercise.restSeconds ?? 90,
+                  restSeconds: exercise.restSeconds === undefined ? 90 : exercise.restSeconds,
                 })),
               }
             : null,

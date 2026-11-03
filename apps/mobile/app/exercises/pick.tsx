@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Screen } from '@/components/ui/Screen';
 import type { LibraryExercise } from '@/features/exercises/api';
 import { ExerciseLibraryView } from '@/features/exercises/components/ExerciseLibraryView';
+import { useRoutineDraftStore } from '@/features/routines/routine-draft-store';
 import { useWorkoutStore, type PickedExercise } from '@/features/workouts/workout-store';
 
 const toPicked = ({ id, trackingType }: LibraryExercise): PickedExercise => ({
@@ -14,14 +15,20 @@ const toPicked = ({ id, trackingType }: LibraryExercise): PickedExercise => ({
 });
 
 /**
- * Choose exercises for the workout in progress: several to add (in the order tapped), or
- * one to replace an exercise when opened with `?replace=<exercise row id>`.
+ * Choose exercises for the workout in progress, or for the routine being edited with
+ * `?for=routine`: several to add (in the order tapped), or one to replace an exercise when
+ * opened with `?replace=<exercise row id>`.
  */
 export default function PickExercisesScreen() {
   const { t } = useTranslation();
-  const { replace } = useLocalSearchParams<{ replace?: string }>();
-  const addExercises = useWorkoutStore((state) => state.addExercises);
-  const replaceExercise = useWorkoutStore((state) => state.replaceExercise);
+  const { replace, for: target } = useLocalSearchParams<{ replace?: string; for?: string }>();
+  const forRoutine = target === 'routine';
+  const workoutAdd = useWorkoutStore((state) => state.addExercises);
+  const workoutReplace = useWorkoutStore((state) => state.replaceExercise);
+  const routineAdd = useRoutineDraftStore((state) => state.addExercises);
+  const routineReplace = useRoutineDraftStore((state) => state.replaceExercise);
+  const addExercises = forRoutine ? routineAdd : workoutAdd;
+  const replaceExercise = forRoutine ? routineReplace : workoutReplace;
   const [selected, setSelected] = useState<PickedExercise[]>([]);
 
   if (replace) {

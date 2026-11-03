@@ -10,6 +10,8 @@ export interface DraftSet extends SetValues {
   setType: WorkoutSetType;
   /** Set when the user marks it done; only completed sets are saved. */
   completedAt: string | null;
+  /** The routine's target for this set, suggested when there is no last time. */
+  target?: SetValues | null;
 }
 
 export interface DraftExercise {
@@ -35,6 +37,8 @@ export interface RestTimer {
 export interface ActiveWorkout {
   id: string;
   userId: string;
+  /** The routine it started from, if any. */
+  routineId: string | null;
   title: string;
   notes: string;
   visibility: WorkoutVisibility;
@@ -45,6 +49,7 @@ export interface ActiveWorkout {
 /** What save_workout() receives. A type (not an interface) so it is valid JSON for Supabase. */
 export type WorkoutPayload = {
   id: string;
+  routine_id: string | null;
   title: string;
   notes: string;
   visibility: WorkoutVisibility;

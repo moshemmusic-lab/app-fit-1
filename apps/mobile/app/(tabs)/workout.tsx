@@ -10,6 +10,7 @@ import { Screen } from '@/components/ui/Screen';
 import { Text } from '@/components/ui/Text';
 import { useSettings } from '@/features/account/api';
 import { useUserId } from '@/features/auth/session';
+import { RoutinesSection } from '@/features/routines/components/RoutinesSection';
 import { ElapsedTime } from '@/features/workouts/components/ElapsedTime';
 import { syncPendingWorkouts } from '@/features/workouts/sync';
 import {
@@ -101,9 +102,11 @@ export default function WorkoutScreen() {
         </View>
       ) : null}
 
+      <RoutinesSection userId={userId} />
+
       <Button
         label={t('workout.openLibrary')}
-        variant="secondary"
+        variant="ghost"
         icon={BookOpen}
         onPress={() => router.push('/exercises')}
       />

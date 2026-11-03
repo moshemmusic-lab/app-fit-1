@@ -7,6 +7,7 @@ import type { ActiveWorkout } from './types';
 const workout: ActiveWorkout = {
   id: 'w1',
   userId: 'u1',
+  routineId: 'r1',
   title: 'Entreno de tarde',
   notes: '',
   visibility: 'followers',
@@ -68,6 +69,10 @@ describe('finishWorkout', () => {
   it('keeps only completed sets and exercises that have some', () => {
     expect(finished.payload.exercises).toHaveLength(1);
     expect(finished.payload.exercises[0]?.sets.map((set) => set.id)).toEqual(['s0', 's1', 's3']);
+  });
+
+  it('keeps the routine it started from', () => {
+    expect(finished.payload.routine_id).toBe('r1');
   });
 
   it('renumbers positions from 0', () => {
