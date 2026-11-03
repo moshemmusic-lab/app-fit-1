@@ -84,6 +84,8 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="edit-profile" />
         <Stack.Screen name="settings" />
+        <Stack.Screen name="exercises/index" />
+        <Stack.Screen name="exercises/[id]" />
       </Stack.Protected>
     </Stack>
   );

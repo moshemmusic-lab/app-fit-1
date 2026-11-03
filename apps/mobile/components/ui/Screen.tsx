@@ -21,6 +21,11 @@ interface ScreenProps {
   footer?: ReactNode;
   /** Screens outside the tab bar need the bottom safe area. */
   withBottomInset?: boolean;
+  /**
+   * `false` for screens built around a long list (FlatList), which scrolls by itself:
+   * the content fills the screen instead of going inside a ScrollView.
+   */
+  scroll?: boolean;
   children?: ReactNode;
 }
 
@@ -33,6 +38,7 @@ export function Screen({
   keepTopBar = false,
   footer,
   withBottomInset = false,
+  scroll = true,
   children,
 }: ScreenProps) {
   const { t } = useTranslation();
@@ -80,18 +86,37 @@ export function Screen({
             {headerRight}
           </View>
         ) : null}
-        <ScrollView
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ padding: spacing[4], gap: spacing[6], flexGrow: 1 }}
-        >
-          {header}
-          {title ? (
-            <Text variant="screenTitle" accessibilityRole="header">
-              {title}
-            </Text>
-          ) : null}
-          {children}
-        </ScrollView>
+        {scroll ? (
+          <ScrollView
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ padding: spacing[4], gap: spacing[6], flexGrow: 1 }}
+          >
+            {header}
+            {title ? (
+              <Text variant="screenTitle" accessibilityRole="header">
+                {title}
+              </Text>
+            ) : null}
+            {children}
+          </ScrollView>
+        ) : (
+          <View
+            style={{
+              flex: 1,
+              paddingHorizontal: spacing[4],
+              paddingTop: spacing[4],
+              gap: spacing[4],
+            }}
+          >
+            {header}
+            {title ? (
+              <Text variant="screenTitle" accessibilityRole="header">
+                {title}
+              </Text>
+            ) : null}
+            {children}
+          </View>
+        )}
         {footer ? (
           <View
             style={{ paddingHorizontal: spacing[4], paddingVertical: spacing[3], gap: spacing[2] }}
