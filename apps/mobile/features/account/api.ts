@@ -173,6 +173,7 @@ export function useUpdateSettings(userId: string) {
   const queryKey = accountKeys.settings(userId);
 
   return useMutation({
+    mutationKey: queryKey,
     mutationFn: async (patch: SettingsPatch) => {
       const { data, error } = await supabase
         .from('user_settings')
@@ -201,8 +202,12 @@ export function useUpdateSettings(userId: string) {
         queryClient.setQueryData(queryKey, context.previous);
       }
     },
-    onSuccess: (settings) => {
-      queryClient.setQueryData(queryKey, settings);
+    onSettled: () => {
+      // With several quick changes, an older response could overwrite a newer optimistic value.
+      // Only the last change still in flight reloads the settings from the server.
+      if (queryClient.isMutating({ mutationKey: queryKey }) === 1) {
+        void queryClient.invalidateQueries({ queryKey });
+      }
     },
   });
 }
