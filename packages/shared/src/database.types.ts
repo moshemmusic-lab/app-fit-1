@@ -23,6 +23,85 @@ export type Database = {
   };
   public: {
     Tables: {
+      exercise_translations: {
+        Row: {
+          aliases: string[];
+          created_at: string;
+          exercise_id: string;
+          instructions: string[];
+          locale: string;
+          name: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          aliases?: string[];
+          created_at?: string;
+          exercise_id: string;
+          instructions?: string[];
+          locale: string;
+          name: string;
+          updated_at?: string;
+        };
+        Update: {
+          aliases?: string[];
+          created_at?: string;
+          exercise_id?: string;
+          instructions?: string[];
+          locale?: string;
+          name?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'exercise_translations_exercise_id_fkey';
+            columns: ['exercise_id'];
+            isOneToOne: false;
+            referencedRelation: 'exercises';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      exercises: {
+        Row: {
+          created_at: string;
+          disciplines: Database['public']['Enums']['discipline'][];
+          equipment: Database['public']['Enums']['equipment_type'];
+          id: string;
+          owner_id: string | null;
+          primary_muscle: Database['public']['Enums']['muscle_group'];
+          secondary_muscles: Database['public']['Enums']['muscle_group'][];
+          slug: string | null;
+          tracking_type: Database['public']['Enums']['exercise_tracking_type'];
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          disciplines?: Database['public']['Enums']['discipline'][];
+          equipment: Database['public']['Enums']['equipment_type'];
+          id?: string;
+          owner_id?: string | null;
+          primary_muscle: Database['public']['Enums']['muscle_group'];
+          secondary_muscles?: Database['public']['Enums']['muscle_group'][];
+          slug?: string | null;
+          tracking_type: Database['public']['Enums']['exercise_tracking_type'];
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          disciplines?: Database['public']['Enums']['discipline'][];
+          equipment?: Database['public']['Enums']['equipment_type'];
+          id?: string;
+          owner_id?: string | null;
+          primary_muscle?: Database['public']['Enums']['muscle_group'];
+          secondary_muscles?: Database['public']['Enums']['muscle_group'][];
+          slug?: string | null;
+          tracking_type?: Database['public']['Enums']['exercise_tracking_type'];
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           avatar_path: string | null;
@@ -124,7 +203,42 @@ export type Database = {
       };
     };
     Enums: {
-      [_ in never]: never;
+      discipline: 'gym';
+      equipment_type:
+        | 'barbell'
+        | 'ez_bar'
+        | 'dumbbell'
+        | 'kettlebell'
+        | 'machine'
+        | 'cable'
+        | 'smith_machine'
+        | 'plate'
+        | 'band'
+        | 'bodyweight'
+        | 'cardio_machine'
+        | 'other';
+      exercise_tracking_type:
+        'weight_reps' | 'bodyweight_reps' | 'duration' | 'distance_duration' | 'calories_duration';
+      muscle_group:
+        | 'chest'
+        | 'shoulders'
+        | 'biceps'
+        | 'triceps'
+        | 'forearms'
+        | 'upper_back'
+        | 'lats'
+        | 'traps'
+        | 'lower_back'
+        | 'abs'
+        | 'obliques'
+        | 'glutes'
+        | 'quadriceps'
+        | 'hamstrings'
+        | 'adductors'
+        | 'abductors'
+        | 'calves'
+        | 'full_body'
+        | 'cardio';
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -238,6 +352,50 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      discipline: ['gym'],
+      equipment_type: [
+        'barbell',
+        'ez_bar',
+        'dumbbell',
+        'kettlebell',
+        'machine',
+        'cable',
+        'smith_machine',
+        'plate',
+        'band',
+        'bodyweight',
+        'cardio_machine',
+        'other',
+      ],
+      exercise_tracking_type: [
+        'weight_reps',
+        'bodyweight_reps',
+        'duration',
+        'distance_duration',
+        'calories_duration',
+      ],
+      muscle_group: [
+        'chest',
+        'shoulders',
+        'biceps',
+        'triceps',
+        'forearms',
+        'upper_back',
+        'lats',
+        'traps',
+        'lower_back',
+        'abs',
+        'obliques',
+        'glutes',
+        'quadriceps',
+        'hamstrings',
+        'adductors',
+        'abductors',
+        'calves',
+        'full_body',
+        'cardio',
+      ],
+    },
   },
 } as const;
