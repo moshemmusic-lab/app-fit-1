@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Turborepo
+.turbo/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+.metro-health-check*
+
+# Generated native folders (Expo Continuous Native Generation)
+apps/mobile/ios/
+apps/mobile/android/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+
+# Supabase
+supabase/.branches/
+supabase/.temp/
+
+# Secrets and env files (only .env.example is committed)
+.env
+.env.*
+!.env.example
+*.pem
+*.p8
+*.p12
+*.key
+*.jks
+*.mobileprovision
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs and OS
+npm-debug.*
+pnpm-debug.log*
+.DS_Store
+coverage/

@@ -1,0 +1,2 @@
+-- Initial data loaded by `supabase db reset` (local only).
+-- The exercise library arrives in MVP step 3; it must be our own or licensed.
