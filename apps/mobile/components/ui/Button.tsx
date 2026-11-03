@@ -11,6 +11,8 @@ interface ButtonProps extends Omit<PressableProps, 'children' | 'style'> {
   variant?: ButtonVariant;
   loading?: boolean;
   icon?: LucideIcon;
+  /** Primary height for a secondary or ghost button placed next to a primary one. */
+  tall?: boolean;
 }
 
 /**
@@ -23,6 +25,7 @@ export function Button({
   loading = false,
   disabled,
   icon: Icon,
+  tall = false,
   ...props
 }: ButtonProps) {
   const { colors, radius, sizes, spacing } = useTheme();
@@ -36,7 +39,7 @@ export function Button({
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       disabled={isDisabled}
       style={({ pressed }) => ({
-        minHeight: variant === 'primary' ? sizes.buttonPrimary : sizes.touchMin,
+        minHeight: variant === 'primary' || tall ? sizes.buttonPrimary : sizes.touchMin,
         paddingHorizontal: spacing[4],
         borderRadius: radius.md,
         alignItems: 'center',

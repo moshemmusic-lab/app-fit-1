@@ -18,6 +18,7 @@ import { deleteAccount, signOut } from '@/features/auth/api';
 import { useSession, useUserId } from '@/features/auth/session';
 import { SettingsSection } from '@/features/settings/components/SettingsSection';
 import { ThemePreferencePicker } from '@/features/settings/components/ThemePreferencePicker';
+import { usePendingWorkouts, useWorkoutStore } from '@/features/workouts/workout-store';
 import { useErrorMessage } from '@/lib/use-error-message';
 
 export default function SettingsScreen() {
@@ -27,6 +28,7 @@ export default function SettingsScreen() {
   const userId = useUserId();
   const settings = useSettings(userId);
   const updateSettings = useUpdateSettings(userId);
+  const pendingWorkouts = usePendingWorkouts(userId);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [accountError, setAccountError] = useState<string | null>(null);
 
@@ -44,8 +46,23 @@ export default function SettingsScreen() {
   });
   const deleteMutation = useMutation({
     mutationFn: deleteAccount,
+    // The account no longer exists: nothing of it may stay on the phone.
+    onSuccess: () => useWorkoutStore.getState().clearUser(userId),
     onError: () => setAccountError(t('settings.deleteFailed')),
   });
+
+  // Unsent workouts stay on the phone (scoped to this account) and upload on the next sign-in.
+  const confirmSignOut = () => {
+    setAccountError(null);
+    if (pendingWorkouts.length === 0) {
+      signOutMutation.mutate();
+      return;
+    }
+    Alert.alert(t('settings.signOutPendingTitle'), t('settings.signOutPendingBody'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('settings.signOut'), onPress: () => signOutMutation.mutate() },
+    ]);
+  };
 
   const confirmDelete = () => {
     Alert.alert(t('settings.deleteConfirmTitle'), t('settings.deleteConfirmBody'), [
@@ -136,10 +153,7 @@ export default function SettingsScreen() {
           icon={LogOut}
           loading={signOutMutation.isPending}
           disabled={deleteMutation.isPending}
-          onPress={() => {
-            setAccountError(null);
-            signOutMutation.mutate();
-          }}
+          onPress={confirmSignOut}
         />
         <Button
           label={t('settings.deleteAccount')}

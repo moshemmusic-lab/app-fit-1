@@ -24,11 +24,15 @@ export function normalizeForSearch(text: string): string {
     .trim();
 }
 
-/** Lower is better: the name starts with the query, then contains it, then only keywords match. */
-function rank(name: string, query: string): number {
+/**
+ * Lower is better: the name starts with the query, then contains it, then another name
+ * (alias) starts with it ("press banca" → bench press), then only scattered words match.
+ */
+function rank(name: string, keywords: readonly string[], query: string): number {
   if (name.startsWith(query)) return 0;
   if (name.includes(query)) return 1;
-  return 2;
+  if (keywords.some((keyword) => keyword.startsWith(query))) return 2;
+  return 3;
 }
 
 /**
@@ -47,15 +51,18 @@ export function filterExercises<T extends SearchableExercise>(
     .filter((exercise) => equipment === null || exercise.equipment === equipment)
     .map((exercise) => {
       const name = normalizeForSearch(exercise.name);
-      const haystack = [name, ...exercise.keywords.map(normalizeForSearch)].join(' ');
-      return { exercise, name, haystack };
+      const keywords = exercise.keywords.map(normalizeForSearch);
+      const haystack = [name, ...keywords].join(' ');
+      return { exercise, name, keywords, haystack };
     })
     .filter(({ haystack }) => words.every((word) => haystack.includes(word)));
 
   return matches
     .sort((a, b) => {
       const byRank =
-        words.length > 0 ? rank(a.name, normalizedQuery) - rank(b.name, normalizedQuery) : 0;
+        words.length > 0
+          ? rank(a.name, a.keywords, normalizedQuery) - rank(b.name, b.keywords, normalizedQuery)
+          : 0;
       if (byRank !== 0) return byRank;
       // Names are already lowercase and without accents, so a plain comparison is alphabetical.
       return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;

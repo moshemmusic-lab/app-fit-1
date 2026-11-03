@@ -185,6 +185,155 @@ export type Database = {
         };
         Relationships: [];
       };
+      workout_exercises: {
+        Row: {
+          created_at: string;
+          exercise_id: string;
+          id: string;
+          notes: string;
+          position: number;
+          superset_group: number | null;
+          workout_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          exercise_id: string;
+          id: string;
+          notes?: string;
+          position: number;
+          superset_group?: number | null;
+          workout_id: string;
+        };
+        Update: {
+          created_at?: string;
+          exercise_id?: string;
+          id?: string;
+          notes?: string;
+          position?: number;
+          superset_group?: number | null;
+          workout_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'workout_exercises_exercise_id_fkey';
+            columns: ['exercise_id'];
+            isOneToOne: false;
+            referencedRelation: 'exercises';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'workout_exercises_workout_id_fkey';
+            columns: ['workout_id'];
+            isOneToOne: false;
+            referencedRelation: 'workouts';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      workout_sets: {
+        Row: {
+          calories: number | null;
+          completed_at: string;
+          created_at: string;
+          distance_m: number | null;
+          duration_s: number | null;
+          id: string;
+          position: number;
+          reps: number | null;
+          rpe: number | null;
+          set_type: Database['public']['Enums']['workout_set_type'];
+          weight_kg: number | null;
+          workout_exercise_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          calories?: number | null;
+          completed_at: string;
+          created_at?: string;
+          distance_m?: number | null;
+          duration_s?: number | null;
+          id: string;
+          position: number;
+          reps?: number | null;
+          rpe?: number | null;
+          set_type?: Database['public']['Enums']['workout_set_type'];
+          weight_kg?: number | null;
+          workout_exercise_id: string;
+        };
+        Update: {
+          calories?: number | null;
+          completed_at?: string;
+          created_at?: string;
+          distance_m?: number | null;
+          duration_s?: number | null;
+          id?: string;
+          position?: number;
+          reps?: number | null;
+          rpe?: number | null;
+          set_type?: Database['public']['Enums']['workout_set_type'];
+          weight_kg?: number | null;
+          workout_exercise_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'workout_sets_workout_exercise_id_fkey';
+            columns: ['workout_exercise_id'];
+            isOneToOne: false;
+            referencedRelation: 'workout_exercises';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      workouts: {
+        Row: {
+          created_at: string;
+          deleted_at: string | null;
+          discipline: Database['public']['Enums']['discipline'];
+          ended_at: string;
+          external_id: string | null;
+          id: string;
+          notes: string;
+          source: Database['public']['Enums']['workout_source'];
+          started_at: string;
+          title: string;
+          updated_at: string;
+          user_id: string;
+          visibility: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          deleted_at?: string | null;
+          discipline?: Database['public']['Enums']['discipline'];
+          ended_at: string;
+          external_id?: string | null;
+          id: string;
+          notes?: string;
+          source?: Database['public']['Enums']['workout_source'];
+          started_at: string;
+          title: string;
+          updated_at?: string;
+          user_id: string;
+          visibility?: string;
+        };
+        Update: {
+          created_at?: string;
+          deleted_at?: string | null;
+          discipline?: Database['public']['Enums']['discipline'];
+          ended_at?: string;
+          external_id?: string | null;
+          id?: string;
+          notes?: string;
+          source?: Database['public']['Enums']['workout_source'];
+          started_at?: string;
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+          visibility?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -201,6 +350,7 @@ export type Database = {
         };
         Returns: undefined;
       };
+      save_workout: { Args: { p_workout: Json }; Returns: undefined };
     };
     Enums: {
       discipline: 'gym';
@@ -239,6 +389,8 @@ export type Database = {
         | 'calves'
         | 'full_body'
         | 'cardio';
+      workout_set_type: 'warmup' | 'normal' | 'drop' | 'failure';
+      workout_source: 'app' | 'imported';
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -396,6 +548,8 @@ export const Constants = {
         'full_body',
         'cardio',
       ],
+      workout_set_type: ['warmup', 'normal', 'drop', 'failure'],
+      workout_source: ['app', 'imported'],
     },
   },
 } as const;

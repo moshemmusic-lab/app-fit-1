@@ -141,6 +141,11 @@ El `tracking_type` decide qué campos de la serie se usan. Así el mismo modelo 
 | `personal_records` | PRs calculados | user_id, exercise_id, record_type (est_1rm, max_weight, max_reps, max_volume), value, workout_set_id, achieved_at |
 | `body_measurements` | Peso y medidas | user_id, measured_at, weight_kg, … |
 
+- `workouts`, `workout_exercises` y `workout_sets` existen desde el paso 4. `routine_id`, `enrollment_id`, `program_session_id` y `prescription_id` se añadirán con sus tablas (pasos 5 y 10); `personal_records` y `body_measurements`, en el paso 6.
+- `workouts` lleva `deleted_at` (borrado lógico, contenido del usuario).
+- **La app no escribe estas tablas directamente:** envía el entreno terminado entero a la función `save_workout(jsonb)`, que sustituye lo guardado antes con ese id. Subir dos veces el mismo entreno deja una sola copia, y la función comprueba que el entreno es del usuario y que los ejercicios son globales o suyos.
+- Cada usuario solo lee sus entrenos; el paso 7 abrirá lo que comparta según `visibility`.
+
 ### 5.5 Creadores y programas (lo planificado)
 | Tabla | Para qué | Campos clave |
 | --- | --- | --- |
@@ -266,6 +271,10 @@ Errores y rendimiento en Sentry (app y web), con especial atención a los fallos
 
 - [ ] Vendedor legal ante el comprador (plataforma o creador) → determina la configuración de Stripe Connect (tipo de cuenta y de cargo).
 - [ ] Viabilidad y modelo de venta de programas dentro de la app (§6.3).
-- [ ] Sincronización: cola propia sobre SQLite o una librería especializada (PowerSync, WatermelonDB).
+- [x] Sincronización: **cola propia sobre SQLite** (decidido el 03/11/2026).
+  - **Por qué:** funciona en Expo Go, no tiene coste y no depende de otro servicio. PowerSync y WatermelonDB necesitan una development build, y PowerSync además es de pago.
+  - **Cómo funciona:** el entreno en curso, la cola de subida y los últimos valores de cada ejercicio viven en un almacén Zustand que se escribe en SQLite tras cada cambio (`features/workouts/workout-store.ts`). Al terminar, el entreno pasa a la cola en una sola escritura y solo sale de ella cuando `save_workout()` confirma.
+  - **Cuándo se sube:** al abrir la app, al volver a ella, al recuperar la conexión, al terminar un entreno y con «Reintentar subida».
+  - **Cuentas:** todo va por usuario. Al cerrar sesión, los entrenos sin subir se quedan en el móvil y se suben cuando ese usuario vuelve a entrar. Al borrar la cuenta se eliminan del móvil.
 - [x] Origen de la biblioteca de ejercicios inicial: **propia** (decidido el 03/11/2026). Los 148 ejercicios del paso 3, con sus nombres, otros nombres e instrucciones, se escribieron para Movyn. Se descartaron bases abiertas de origen poco claro y bases CC-BY-SA, que obligan a citar al autor en cada ejercicio y a compartir lo que se añada.
 - [ ] Origen de las imágenes y los vídeos de los ejercicios: propios o con licencia, nunca copiados de otra app. Hay que decidirlo antes de la beta (paso 9); las opciones son grabarlos con los creadores piloto, encargarlos o comprar un paquete con licencia comercial.
