@@ -1,7 +1,7 @@
 # MVP.md — App Fit 1
 
 > **Qué desarrollamos primero para lanzar la app al mercado.** Qué es imprescindible y qué puede esperar.
-> Última actualización: 02/11/2026. Documentos relacionados: [PRODUCT.md](./PRODUCT.md) y [ARCHITECTURE.md](./ARCHITECTURE.md).
+> Última actualización: 03/11/2026. Documentos relacionados: [PRODUCT.md](./PRODUCT.md) y [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ---
 
@@ -39,11 +39,11 @@ Las fechas suponen una dedicación semanal alta; se ajustan a las horas reales d
 ## 4. Imprescindible en el MVP
 
 ### 4.1 Cuenta y perfil (fase 1)
-- [ ] Registro e inicio de sesión con email, Apple y Google.
-- [ ] Onboarding: objetivo (fuerza, cardio o ambos), nivel, kg/lb y consentimiento de datos de salud.
-- [ ] Perfil con foto, nombre, bio y estadísticas básicas; perfil público o privado.
-- [ ] Ajustes: unidades, privacidad por defecto de los entrenos y notificaciones.
-- [ ] Exportar mis datos y borrar mi cuenta.
+- [ ] Registro e inicio de sesión con email, Apple y Google. *Email y Apple, hechos (paso 2); Google, antes de la beta (paso 9).*
+- [x] Onboarding: objetivo (fuerza, cardio o ambos), nivel, kg/lb y consentimiento de datos de salud.
+- [x] Perfil con foto, nombre, bio y estadísticas básicas; perfil público o privado. *Las cifras reales llegan con los pasos 4 y 7.*
+- [x] Ajustes: unidades, privacidad por defecto de los entrenos y notificaciones.
+- [ ] Exportar mis datos y borrar mi cuenta. *Borrar cuenta, hecho (paso 2); exportar, tras el paso 6.*
 
 ### 4.2 Registro de entrenos (fase 1)
 - [ ] Empezar un entreno vacío, desde una rutina o desde la sesión de hoy de un programa.
@@ -152,8 +152,8 @@ Las fechas suponen una dedicación semanal alta; se ajustan a las horas reales d
 
 Cada paso es una funcionalidad completa de punta a punta (base de datos → lógica → pantalla) que se puede probar.
 
-1. Repositorio (monorepo), `CLAUDE.md`, Supabase local y CI.
-2. Autenticación (email con código y Apple), onboarding, perfil, ajustes y borrar cuenta.
+1. Repositorio (monorepo), `CLAUDE.md`, Supabase local y CI. *Hecho.*
+2. Autenticación (email con código y Apple), onboarding, perfil, ajustes y borrar cuenta. *Hecho (probado en simulador y en iPhone el 03/11/2026).*
 3. Biblioteca de ejercicios (modelo, traducciones, datos iniciales propios o con licencia).
 4. **Registrar un entreno** sin conexión + sincronización.
 5. Rutinas y carpetas.
