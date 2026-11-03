@@ -109,7 +109,7 @@ export default function SettingsScreen() {
             />
           </SettingsSection>
         </>
-      ) : settings.isError ? (
+      ) : settings.isError || settings.fetchStatus === 'paused' ? (
         <ErrorState
           message={getErrorMessage(settings.error)}
           onRetry={() => void settings.refetch()}

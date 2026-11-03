@@ -37,7 +37,7 @@ export default function EditProfileScreen() {
     <EditProfileForm profile={profile.data} />
   ) : (
     <Screen withBottomInset onBack={() => router.back()} title={t('editProfile.title')}>
-      {profile.isError ? (
+      {profile.isError || profile.fetchStatus === 'paused' ? (
         <ErrorState
           message={getErrorMessage(profile.error)}
           onRetry={() => void profile.refetch()}

@@ -80,7 +80,8 @@ export default function ProfileScreen() {
 
           <EmptyState title={t('profile.emptyTitle')} body={t('profile.emptyBody')} />
         </>
-      ) : profile.isError ? (
+      ) : profile.isError || profile.fetchStatus === 'paused' ? (
+        // Paused = offline with nothing saved on the phone yet: say so instead of loading forever.
         <ErrorState
           message={getErrorMessage(profile.error)}
           onRetry={() => void profile.refetch()}

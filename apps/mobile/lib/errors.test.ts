@@ -13,6 +13,27 @@ describe('classifyError', () => {
     expect(classifyError({ name: 'FunctionsFetchError', message: 'x' }, true)).toBe('offline');
   });
 
+  it('detects network failures from expo/fetch, also when PostgREST wraps them', () => {
+    expect(classifyError(new Error('fetch failed: Could not connect to the server.'), true)).toBe(
+      'offline',
+    );
+    expect(
+      classifyError(
+        { message: 'Error: fetch failed: Could not connect to the server.', code: '' },
+        true,
+      ),
+    ).toBe('offline');
+  });
+
+  it('treats a PostgREST timeout as a connection problem', () => {
+    expect(
+      classifyError({ message: 'AbortError: The operation was aborted.', code: '' }, true),
+    ).toBe('offline');
+    expect(
+      classifyError({ message: 'AbortError: The operation was aborted.', code: 'PGRST000' }, true),
+    ).toBe('unknown');
+  });
+
   it('detects rate limits', () => {
     expect(classifyError({ name: 'AuthApiError', status: 429 }, true)).toBe('rateLimited');
     expect(classifyError({ code: 'over_email_send_rate_limit' }, true)).toBe('rateLimited');

@@ -28,6 +28,12 @@ export const supabase = createClient<Database>(
       persistSession: true,
       detectSessionInUrl: false,
     },
+    db: {
+      // TanStack Query already retries. Retrying here too made errors take ~30 s to show.
+      retry: false,
+      // A request that hangs on a bad connection fails instead of loading forever.
+      timeout: 15_000,
+    },
   },
 );
 
