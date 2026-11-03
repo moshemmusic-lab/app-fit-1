@@ -61,7 +61,10 @@ export default function OnboardingScreen() {
 
   const step = onboardingSteps[stepIndex] ?? 'profile';
   const isLastStep = stepIndex === onboardingSteps.length - 1;
-  const update = (patch: Partial<OnboardingDraft>) => setDraft({ ...draft, ...patch });
+  // Choosing an option is the only thing to do on these steps: nothing to explain with an error.
+  const isChoiceStep = step === 'goal' || step === 'level';
+  const update = (patch: Partial<OnboardingDraft>) =>
+    setDraft((current) => ({ ...current, ...patch }));
 
   const usernameError = validationErrorOf(usernameSchema, draft.username);
   const displayNameError = validationErrorOf(displayNameSchema, draft.displayName);
@@ -122,6 +125,7 @@ export default function OnboardingScreen() {
   return (
     <Screen
       withBottomInset
+      keepTopBar
       onBack={stepIndex > 0 ? () => goTo(stepIndex - 1) : undefined}
       header={<OnboardingProgress current={stepIndex + 1} total={onboardingSteps.length} />}
       title={t(titleKeys[step])}
@@ -131,7 +135,7 @@ export default function OnboardingScreen() {
           <Button
             label={isLastStep ? t('onboarding.finish') : t('common.continue')}
             loading={checkingUsername || completeOnboarding.isPending}
-            disabled={showFieldErrors && !isStepComplete(step, draft)}
+            disabled={(showFieldErrors || isChoiceStep) && !isStepComplete(step, draft)}
             onPress={() => void handleContinue()}
           />
         </>

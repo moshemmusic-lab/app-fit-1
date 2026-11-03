@@ -43,7 +43,10 @@ export function OptionCard({ title, description, selected, ...props }: OptionCar
           </Text>
         ) : null}
       </View>
-      {selected ? <Check size={sizes.icon} strokeWidth={2.2} color={colors.inkOnLime} /> : null}
+      {/* The slot is always there so the text does not reflow when the card gets selected. */}
+      <View style={{ width: sizes.icon, height: sizes.icon }}>
+        {selected ? <Check size={sizes.icon} strokeWidth={2.2} color={colors.inkOnLime} /> : null}
+      </View>
     </Pressable>
   );
 }

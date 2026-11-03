@@ -15,6 +15,8 @@ interface ScreenProps {
   headerRight?: ReactNode;
   /** Shows a back button in the top bar. */
   onBack?: () => void;
+  /** Keeps the top bar's space even when it has no buttons, so multi-step screens don't jump. */
+  keepTopBar?: boolean;
   /** Main actions pinned to the bottom, within thumb reach (docs/DESIGN.md). */
   footer?: ReactNode;
   /** Screens outside the tab bar need the bottom safe area. */
@@ -28,13 +30,14 @@ export function Screen({
   header,
   headerRight,
   onBack,
+  keepTopBar = false,
   footer,
   withBottomInset = false,
   children,
 }: ScreenProps) {
   const { t } = useTranslation();
   const { colors, sizes, spacing } = useTheme();
-  const showTopBar = onBack !== undefined || headerRight !== undefined;
+  const showTopBar = keepTopBar || onBack !== undefined || headerRight !== undefined;
 
   return (
     <SafeAreaView
