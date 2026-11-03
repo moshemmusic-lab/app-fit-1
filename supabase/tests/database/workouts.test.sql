@@ -198,7 +198,8 @@ select throws_ok(
 reset role;
 
 select results_eq(
-  $$ select count(*)::int, min(weight_kg) from public.workout_sets $$,
+  $$ select count(*)::int, min(weight_kg) from public.workout_sets
+     where workout_exercise_id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' $$,
   $$ values (3, 102.500::numeric) $$,
   'Rejected uploads changed nothing'
 );
@@ -210,8 +211,10 @@ select lives_ok(
 
 select results_eq(
   $$ select
-       (select count(*)::int from public.workouts),
-       (select count(*)::int from public.workout_sets) $$,
+       (select count(*)::int from public.workouts
+        where id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'),
+       (select count(*)::int from public.workout_sets
+        where workout_exercise_id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb') $$,
   $$ values (0, 0) $$,
   '…and deletes its workouts and sets'
 );
