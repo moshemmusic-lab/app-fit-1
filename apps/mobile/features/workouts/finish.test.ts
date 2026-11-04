@@ -88,7 +88,27 @@ describe('finishWorkout', () => {
       volumeKg: 900,
       setCount: 2,
       exerciseCount: 1,
+      records: [],
     });
+  });
+
+  it('finds the records it beats, only with completed working sets', () => {
+    const withRecords = finishWorkout(workout, new Date('2026-11-03T18:00:00.000Z'), 'Entreno', {
+      bests: { squat: { est_1rm: 110, max_weight: 100, max_volume: 450 } },
+      trackingTypeOf: () => 'weight_reps',
+    });
+    // 100 × 5: a better 1RM (116.67) and set (500), the same weight. The 60 × 10 warm-up
+    // and the uncompleted set do not count.
+    expect(
+      withRecords.summary.records?.map((record) => [
+        record.recordType,
+        record.value,
+        record.previousValue,
+      ]),
+    ).toEqual([
+      ['est_1rm', 116.67, 110],
+      ['max_volume', 500, 450],
+    ]);
   });
 
   it('remembers the completed sets as last time values', () => {

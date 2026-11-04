@@ -1,4 +1,5 @@
 import type { Database } from '@app-fit/shared/database';
+import type { NewRecord } from '@app-fit/shared/progress';
 import type { WorkoutVisibility } from '@app-fit/shared/schemas';
 import type { SetValues } from '@app-fit/shared/workouts';
 
@@ -91,6 +92,8 @@ export interface WorkoutSummary {
   volumeKg: number;
   setCount: number;
   exerciseCount: number;
+  /** Records beaten in this workout. Missing in summaries saved before records existed. */
+  records?: NewRecord[];
 }
 
 /** A completed set remembered to prefill the next workout. */
