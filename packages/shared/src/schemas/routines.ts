@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { accountLimits } from './account';
 
-/** Same limits as the database (routines.name, routine_folders.name). */
+/** Same limits as the database (routines.name, routine_folders.name, exercise names). */
 export const routineNameSchema = z
   .string()
   .trim()
@@ -14,3 +14,9 @@ export const folderNameSchema = z
   .trim()
   .min(1, { error: 'nameRequired' })
   .max(accountLimits.folderNameMax, { error: 'nameTooLong' });
+
+export const exerciseNameSchema = z
+  .string()
+  .trim()
+  .min(1, { error: 'nameRequired' })
+  .max(accountLimits.exerciseNameMax, { error: 'nameTooLong' });

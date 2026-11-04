@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { validationErrorOf } from './account';
-import { folderNameSchema, routineNameSchema } from './routines';
+import { exerciseNameSchema, folderNameSchema, routineNameSchema } from './routines';
 
 describe('routine and folder names', () => {
   it('trims and accepts normal names', () => {
@@ -18,5 +18,7 @@ describe('routine and folder names', () => {
     expect(validationErrorOf(routineNameSchema, 'a'.repeat(81))).toBe('nameTooLong');
     expect(validationErrorOf(folderNameSchema, 'a'.repeat(51))).toBe('nameTooLong');
     expect(validationErrorOf(routineNameSchema, 'a'.repeat(80))).toBeNull();
+    expect(validationErrorOf(exerciseNameSchema, 'a'.repeat(81))).toBe('nameTooLong');
+    expect(validationErrorOf(exerciseNameSchema, ' ')).toBe('nameRequired');
   });
 });

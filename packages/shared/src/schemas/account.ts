@@ -22,6 +22,7 @@ export const accountLimits = {
   signInCodeLength: 6,
   routineNameMax: 80,
   folderNameMax: 50,
+  exerciseNameMax: 80,
   notesMax: 2000,
 } as const;
 
@@ -41,6 +42,8 @@ export const validationErrorKeys = [
   'consentRequired',
   'nameRequired',
   'nameTooLong',
+  'muscleRequired',
+  'equipmentRequired',
 ] as const;
 export type ValidationErrorKey = (typeof validationErrorKeys)[number];
 
