@@ -8,6 +8,7 @@ import {
   dayKey,
   estimateOneRepMaxKg,
   findNewRecords,
+  isValidBodyWeightKg,
   monthWeeks,
   parseDayKey,
   progressSeries,
@@ -261,5 +262,14 @@ describe('exercise progress', () => {
     expect(progressSeries(sessions, 'max_duration')).toEqual([]);
     expect(sessionMetric([hold(30), hold(45)], 'session_duration')).toBe(75);
     expect(sessionMetric([strength(null, 8), strength(null, 6)], 'session_reps')).toBe(14);
+  });
+});
+
+describe('body weight', () => {
+  it('accepts the same range as the database', () => {
+    expect(isValidBodyWeightKg(20)).toBe(true);
+    expect(isValidBodyWeightKg(500)).toBe(true);
+    expect(isValidBodyWeightKg(19.9)).toBe(false);
+    expect(isValidBodyWeightKg(500.1)).toBe(false);
   });
 });

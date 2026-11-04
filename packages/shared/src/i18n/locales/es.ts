@@ -503,7 +503,7 @@ export const es = {
     previousDay: 'Día anterior',
     nextDay: 'Día siguiente',
     save: 'Guardar peso',
-    replaceHint: 'Ese día ya tiene un peso: se sustituirá.',
+    replaceHint: 'Ese día ya tiene {{value}}: si guardas, se sustituirá.',
     invalid: 'Escribe un peso entre {{min}} y {{max}} {{unit}}.',
     saveFailed: 'No se ha podido guardar.',
     offlineEdit: 'Necesitas conexión para registrar tu peso.',
