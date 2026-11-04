@@ -1,12 +1,20 @@
+import { onlineManager } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
+import { Pencil, Trash2 } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { Alert, View } from 'react-native';
 
+import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Screen } from '@/components/ui/Screen';
 import { ErrorState, LoadingState } from '@/components/ui/StateViews';
 import { Text } from '@/components/ui/Text';
-import { useExercise, type LibraryExercise } from '@/features/exercises/api';
+import {
+  useDeleteCustomExercise,
+  useExercise,
+  type LibraryExercise,
+} from '@/features/exercises/api';
+import { classifyError } from '@/lib/errors';
 import { useErrorMessage } from '@/lib/use-error-message';
 import { useTheme } from '@/theme/ThemeProvider';
 
@@ -51,9 +59,36 @@ function Fact({ label, value }: { label: string; value: string }) {
 function ExerciseDetails({ exercise }: { exercise: LibraryExercise }) {
   const { t } = useTranslation();
   const { colors, radius, sizes, spacing } = useTheme();
+  const getErrorMessage = useErrorMessage();
+  const deleteExercise = useDeleteCustomExercise();
+
+  const confirmDelete = () =>
+    Alert.alert(t('exercises.deleteConfirmTitle'), t('exercises.deleteConfirmBody'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('exercises.delete'),
+        style: 'destructive',
+        onPress: () =>
+          deleteExercise.mutate(exercise.id, {
+            onSuccess: () => router.back(),
+            onError: (error) =>
+              Alert.alert(
+                t('exercises.saveFailed'),
+                classifyError(error, onlineManager.isOnline()) === 'offline'
+                  ? t('exercises.offlineEdit')
+                  : getErrorMessage(error),
+              ),
+          }),
+      },
+    ]);
 
   return (
     <>
+      {exercise.isCustom ? (
+        <Text variant="caption" color="textMuted">
+          {exercise.deleted ? t('exercises.deletedNote') : t('exercises.custom')}
+        </Text>
+      ) : null}
       <View
         style={{
           padding: spacing[4],
@@ -100,6 +135,26 @@ function ExerciseDetails({ exercise }: { exercise: LibraryExercise }) {
               </Text>
             </View>
           ))}
+        </View>
+      ) : null}
+
+      {exercise.isCustom && !exercise.deleted ? (
+        <View style={{ gap: spacing[2] }}>
+          <Button
+            label={t('exercises.edit')}
+            variant="secondary"
+            icon={Pencil}
+            onPress={() =>
+              router.push({ pathname: '/exercises/edit', params: { id: exercise.id } })
+            }
+          />
+          <Button
+            label={t('exercises.delete')}
+            variant="ghost"
+            icon={Trash2}
+            loading={deleteExercise.isPending}
+            onPress={confirmDelete}
+          />
         </View>
       ) : null}
     </>

@@ -14,6 +14,10 @@ const toPicked = ({ id, trackingType }: LibraryExercise): PickedExercise => ({
   trackingType,
 });
 
+// Back here, the new exercise shows up under the same search, ready to tap.
+const createExercise = (name: string) =>
+  router.push({ pathname: '/exercises/edit', params: { name } });
+
 /**
  * Choose exercises for the workout in progress, or for the routine being edited with
  * `?for=routine`: several to add (in the order tapped), or one to replace an exercise when
@@ -44,6 +48,7 @@ export default function PickExercisesScreen() {
             replaceExercise(replace, toPicked(exercise));
             router.back();
           }}
+          onCreateExercise={createExercise}
         />
       </Screen>
     );
@@ -80,6 +85,7 @@ export default function PickExercisesScreen() {
       <ExerciseLibraryView
         selectedIds={new Set(selected.map((picked) => picked.exerciseId))}
         onPressExercise={toggle}
+        onCreateExercise={createExercise}
       />
     </Screen>
   );

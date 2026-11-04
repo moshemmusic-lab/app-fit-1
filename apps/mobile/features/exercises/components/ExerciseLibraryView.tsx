@@ -5,6 +5,7 @@ import {
   type EquipmentType,
   type MuscleGroup,
 } from '@app-fit/shared/exercises';
+import { Plus } from 'lucide-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, View } from 'react-native';
@@ -25,19 +26,27 @@ interface ExerciseLibraryViewProps {
   /** Selection mode (adding exercises to a workout) when given. */
   selectedIds?: ReadonlySet<string>;
   onPressExercise: (exercise: LibraryExercise) => void;
+  /** Offers to create a custom exercise, named with what was searched. */
+  onCreateExercise?: (name: string) => void;
 }
 
 /** The library with its search and filters, plus loading and offline states. */
-export function ExerciseLibraryView({ selectedIds, onPressExercise }: ExerciseLibraryViewProps) {
+export function ExerciseLibraryView({
+  selectedIds,
+  onPressExercise,
+  onCreateExercise,
+}: ExerciseLibraryViewProps) {
   const getErrorMessage = useErrorMessage();
   const library = useExerciseLibrary();
 
   if (library.data) {
     return (
       <ExerciseBrowser
-        exercises={library.data}
+        // Deleted custom exercises only live on in the workouts and routines that use them.
+        exercises={library.data.filter((exercise) => !exercise.deleted)}
         selectedIds={selectedIds}
         onPressExercise={onPressExercise}
+        onCreateExercise={onCreateExercise}
       />
     );
   }
@@ -62,6 +71,7 @@ function ExerciseBrowser({
   exercises,
   selectedIds,
   onPressExercise,
+  onCreateExercise,
 }: ExerciseLibraryViewProps & { exercises: LibraryExercise[] }) {
   const { t } = useTranslation();
   const { spacing } = useTheme();
@@ -70,7 +80,11 @@ function ExerciseBrowser({
   const [equipment, setEquipment] = useState<EquipmentType | null>(null);
 
   const details = (exercise: LibraryExercise) =>
-    `${t(`muscles.${exercise.primaryMuscle}`)} · ${t(`equipment.${exercise.equipment}`)}`;
+    [
+      ...(exercise.isCustom ? [t('exercises.custom')] : []),
+      t(`muscles.${exercise.primaryMuscle}`),
+      t(`equipment.${exercise.equipment}`),
+    ].join(' · ');
 
   // Typing a muscle or equipment name ("pecho", "polea") also finds the exercise.
   const searchable = exercises.map((exercise) => ({
@@ -79,6 +93,8 @@ function ExerciseBrowser({
       ...exercise.aliases,
       t(`muscles.${exercise.primaryMuscle}`),
       t(`equipment.${exercise.equipment}`),
+      // "personalizado" lists the user's own exercises.
+      ...(exercise.isCustom ? [t('exercises.custom')] : []),
     ],
   }));
   const results = filterExercises(searchable, { query, muscle, equipment });
@@ -133,9 +149,19 @@ function ExerciseBrowser({
         keyboardDismissMode="on-drag"
         ListHeaderComponent={
           results.length > 0 ? (
-            <Text variant="caption" color="textMuted">
-              {t('exercises.count', { count: results.length })}
-            </Text>
+            <View style={{ gap: spacing[2] }}>
+              {onCreateExercise ? (
+                <Button
+                  label={t('exercises.create')}
+                  variant="ghost"
+                  icon={Plus}
+                  onPress={() => onCreateExercise(query.trim())}
+                />
+              ) : null}
+              <Text variant="caption" color="textMuted">
+                {t('exercises.count', { count: results.length })}
+              </Text>
+            </View>
           ) : undefined
         }
         ItemSeparatorComponent={Separator}
@@ -149,7 +175,22 @@ function ExerciseBrowser({
         )}
         ListEmptyComponent={
           <View style={{ gap: spacing[3] }}>
-            <EmptyState title={t('exercises.noResultsTitle')} body={t('exercises.noResultsBody')} />
+            <EmptyState
+              title={t('exercises.noResultsTitle')}
+              body={onCreateExercise ? t('exercises.createHint') : t('exercises.noResultsBody')}
+            />
+            {onCreateExercise ? (
+              <Button
+                label={
+                  query.trim() === ''
+                    ? t('exercises.create')
+                    : t('exercises.createNamed', { name: query.trim() })
+                }
+                variant="secondary"
+                icon={Plus}
+                onPress={() => onCreateExercise(query.trim())}
+              />
+            ) : null}
             {hasFilters ? (
               <Button label={t('exercises.clearFilters')} variant="ghost" onPress={clearFilters} />
             ) : null}

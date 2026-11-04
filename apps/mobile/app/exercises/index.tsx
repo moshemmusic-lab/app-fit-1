@@ -18,6 +18,7 @@ export default function ExerciseLibraryScreen() {
         onPressExercise={(exercise) =>
           router.push({ pathname: '/exercises/[id]', params: { id: exercise.id } })
         }
+        onCreateExercise={(name) => router.push({ pathname: '/exercises/edit', params: { name } })}
       />
     </Screen>
   );
