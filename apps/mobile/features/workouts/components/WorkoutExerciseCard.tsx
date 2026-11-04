@@ -59,12 +59,13 @@ export function WorkoutExerciseCard({
   }));
 
   // What each set suggests (grey placeholder, used when marked done with empty fields):
-  // last time's set in that position, else the set above it.
+  // last time's set in that position, else the routine's target, else the set above it.
   const suggestions: (SetValues | undefined)[] = [];
   exercise.sets.forEach((set, index) => {
     const above = exercise.sets[index - 1];
     suggestions.push(
       previousSets?.[index] ??
+        set.target ??
         (above ? fillFromPrevious(above, suggestions[index - 1], trackingType) : undefined),
     );
   });

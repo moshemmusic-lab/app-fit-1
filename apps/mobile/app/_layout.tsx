@@ -90,7 +90,12 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
         <Stack.Screen name="exercises/index" />
         <Stack.Screen name="exercises/[id]" />
         <Stack.Screen name="exercises/pick" options={{ presentation: 'modal' }} />
+        <Stack.Screen
+          name="exercises/edit"
+          options={{ presentation: 'modal', gestureEnabled: false }}
+        />
         <Stack.Screen name="active-workout" />
+        <Stack.Screen name="routine-editor" options={{ gestureEnabled: false }} />
         <Stack.Screen name="workout-summary" options={{ gestureEnabled: false }} />
       </Stack.Protected>
     </Stack>

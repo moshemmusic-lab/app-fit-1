@@ -88,6 +88,7 @@ export function finishWorkout(
 
   const payload: WorkoutPayload = {
     id: workout.id,
+    routine_id: workout.routineId ?? null,
     title: workout.title.trim().slice(0, 80) || fallbackTitle,
     notes: workout.notes.trim().slice(0, 2000),
     visibility: workout.visibility,

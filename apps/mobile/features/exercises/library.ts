@@ -14,7 +14,13 @@ type TranslationRow = Pick<TranslationTableRow, 'locale' | 'name' | 'aliases' | 
 /** What the library query returns: an exercise with all its translations. */
 export type ExerciseRow = Pick<
   ExerciseTableRow,
-  'id' | 'tracking_type' | 'primary_muscle' | 'secondary_muscles' | 'equipment'
+  | 'id'
+  | 'owner_id'
+  | 'deleted_at'
+  | 'tracking_type'
+  | 'primary_muscle'
+  | 'secondary_muscles'
+  | 'equipment'
 > & { exercise_translations: TranslationRow[] };
 
 export interface LibraryExercise {
@@ -27,6 +33,13 @@ export interface LibraryExercise {
   aliases: string[];
   /** One string per step. */
   instructions: string[];
+  /** Created by the user (only they see it). */
+  isCustom: boolean;
+  /**
+   * A custom exercise the user deleted: hidden from the library, but still named in the
+   * workouts and routines that use it.
+   */
+  deleted: boolean;
 }
 
 /** The translation for the user's locale, else Spanish (Spain), else none. */
@@ -41,13 +54,19 @@ export function pickTranslation(
   );
 }
 
-/** Exercises without a usable translation are left out instead of showing an empty name. */
+/**
+ * Exercises without a usable translation are left out instead of showing an empty name. A custom
+ * exercise has a single name, in whatever language it was created: it is always used.
+ */
 export function toLibraryExercises(
   rows: readonly ExerciseRow[],
   locale: string,
 ): LibraryExercise[] {
   return rows.flatMap((row) => {
-    const translation = pickTranslation(row.exercise_translations, locale);
+    const isCustom = row.owner_id !== null;
+    const translation =
+      pickTranslation(row.exercise_translations, locale) ??
+      (isCustom ? (row.exercise_translations[0] ?? null) : null);
     if (!translation) return [];
     return [
       {
@@ -59,6 +78,8 @@ export function toLibraryExercises(
         name: translation.name,
         aliases: translation.aliases,
         instructions: translation.instructions,
+        isCustom,
+        deleted: row.deleted_at !== null,
       },
     ];
   });

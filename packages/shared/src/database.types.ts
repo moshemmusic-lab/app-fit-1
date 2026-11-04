@@ -65,6 +65,7 @@ export type Database = {
       exercises: {
         Row: {
           created_at: string;
+          deleted_at: string | null;
           disciplines: Database['public']['Enums']['discipline'][];
           equipment: Database['public']['Enums']['equipment_type'];
           id: string;
@@ -78,6 +79,7 @@ export type Database = {
         ComputedFields: never;
         Insert: {
           created_at?: string;
+          deleted_at?: string | null;
           disciplines?: Database['public']['Enums']['discipline'][];
           equipment: Database['public']['Enums']['equipment_type'];
           id?: string;
@@ -90,6 +92,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          deleted_at?: string | null;
           disciplines?: Database['public']['Enums']['discipline'][];
           equipment?: Database['public']['Enums']['equipment_type'];
           id?: string;
@@ -138,6 +141,189 @@ export type Database = {
           username?: string | null;
         };
         Relationships: [];
+      };
+      routine_exercises: {
+        Row: {
+          created_at: string;
+          exercise_id: string;
+          id: string;
+          notes: string;
+          position: number;
+          rest_seconds: number | null;
+          routine_id: string;
+          superset_group: number | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          exercise_id: string;
+          id: string;
+          notes?: string;
+          position: number;
+          rest_seconds?: number | null;
+          routine_id: string;
+          superset_group?: number | null;
+        };
+        Update: {
+          created_at?: string;
+          exercise_id?: string;
+          id?: string;
+          notes?: string;
+          position?: number;
+          rest_seconds?: number | null;
+          routine_id?: string;
+          superset_group?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'routine_exercises_exercise_id_fkey';
+            columns: ['exercise_id'];
+            isOneToOne: false;
+            referencedRelation: 'exercises';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'routine_exercises_routine_id_fkey';
+            columns: ['routine_id'];
+            isOneToOne: false;
+            referencedRelation: 'routines';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      routine_folders: {
+        Row: {
+          created_at: string;
+          id: string;
+          name: string;
+          owner_id: string;
+          position: number;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          id?: string;
+          name: string;
+          owner_id?: string;
+          position?: number;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          name?: string;
+          owner_id?: string;
+          position?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      routine_sets: {
+        Row: {
+          created_at: string;
+          id: string;
+          position: number;
+          routine_exercise_id: string;
+          set_type: Database['public']['Enums']['workout_set_type'];
+          target_distance_m: number | null;
+          target_duration_s: number | null;
+          target_reps: number | null;
+          target_weight_kg: number | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          id: string;
+          position: number;
+          routine_exercise_id: string;
+          set_type?: Database['public']['Enums']['workout_set_type'];
+          target_distance_m?: number | null;
+          target_duration_s?: number | null;
+          target_reps?: number | null;
+          target_weight_kg?: number | null;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          position?: number;
+          routine_exercise_id?: string;
+          set_type?: Database['public']['Enums']['workout_set_type'];
+          target_distance_m?: number | null;
+          target_duration_s?: number | null;
+          target_reps?: number | null;
+          target_weight_kg?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'routine_sets_routine_exercise_id_fkey';
+            columns: ['routine_exercise_id'];
+            isOneToOne: false;
+            referencedRelation: 'routine_exercises';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      routines: {
+        Row: {
+          copied_from_routine_id: string | null;
+          created_at: string;
+          deleted_at: string | null;
+          discipline: Database['public']['Enums']['discipline'];
+          folder_id: string | null;
+          id: string;
+          name: string;
+          notes: string;
+          owner_id: string;
+          position: number;
+          updated_at: string;
+          visibility: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          copied_from_routine_id?: string | null;
+          created_at?: string;
+          deleted_at?: string | null;
+          discipline?: Database['public']['Enums']['discipline'];
+          folder_id?: string | null;
+          id: string;
+          name: string;
+          notes?: string;
+          owner_id: string;
+          position?: number;
+          updated_at?: string;
+          visibility?: string;
+        };
+        Update: {
+          copied_from_routine_id?: string | null;
+          created_at?: string;
+          deleted_at?: string | null;
+          discipline?: Database['public']['Enums']['discipline'];
+          folder_id?: string | null;
+          id?: string;
+          name?: string;
+          notes?: string;
+          owner_id?: string;
+          position?: number;
+          updated_at?: string;
+          visibility?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'routines_copied_from_routine_id_fkey';
+            columns: ['copied_from_routine_id'];
+            isOneToOne: false;
+            referencedRelation: 'routines';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'routines_folder_same_owner';
+            columns: ['folder_id', 'owner_id'];
+            isOneToOne: false;
+            referencedRelation: 'routine_folders';
+            referencedColumns: ['id', 'owner_id'];
+          },
+        ];
       };
       user_settings: {
         Row: {
@@ -294,6 +480,7 @@ export type Database = {
           external_id: string | null;
           id: string;
           notes: string;
+          routine_id: string | null;
           source: Database['public']['Enums']['workout_source'];
           started_at: string;
           title: string;
@@ -310,6 +497,7 @@ export type Database = {
           external_id?: string | null;
           id: string;
           notes?: string;
+          routine_id?: string | null;
           source?: Database['public']['Enums']['workout_source'];
           started_at: string;
           title: string;
@@ -325,6 +513,7 @@ export type Database = {
           external_id?: string | null;
           id?: string;
           notes?: string;
+          routine_id?: string | null;
           source?: Database['public']['Enums']['workout_source'];
           started_at?: string;
           title?: string;
@@ -332,7 +521,15 @@ export type Database = {
           user_id?: string;
           visibility?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'workouts_routine_id_fkey';
+            columns: ['routine_id'];
+            isOneToOne: false;
+            referencedRelation: 'routines';
+            referencedColumns: ['id'];
+          },
+        ];
       };
     };
     Views: {
@@ -350,6 +547,8 @@ export type Database = {
         };
         Returns: undefined;
       };
+      save_custom_exercise: { Args: { p_exercise: Json }; Returns: undefined };
+      save_routine: { Args: { p_routine: Json }; Returns: undefined };
       save_workout: { Args: { p_workout: Json }; Returns: undefined };
     };
     Enums: {

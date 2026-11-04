@@ -1,5 +1,10 @@
-import { defaultExerciseLocale } from '@app-fit/shared/exercises';
-import { queryOptions, useQuery } from '@tanstack/react-query';
+import {
+  defaultExerciseLocale,
+  type EquipmentType,
+  type MuscleGroup,
+  type TrackingType,
+} from '@app-fit/shared/exercises';
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { supabase } from '@/lib/supabase';
 
@@ -19,7 +24,7 @@ async function fetchLibrary(exerciseLocale: string): Promise<LibraryExercise[]> 
   const { data, error } = await supabase
     .from('exercises')
     .select(
-      'id, tracking_type, primary_muscle, secondary_muscles, equipment, exercise_translations (locale, name, aliases, instructions)',
+      'id, owner_id, deleted_at, tracking_type, primary_muscle, secondary_muscles, equipment, exercise_translations (locale, name, aliases, instructions)',
     );
   if (error) throw error;
   return toLibraryExercises(data, exerciseLocale);
@@ -41,6 +46,55 @@ export function useExercise(id: string) {
   return useQuery({
     ...libraryOptions,
     select: (exercises) => exercises.find((exercise) => exercise.id === id) ?? null,
+  });
+}
+
+/** What the user fills in to create or edit one of their own exercises. */
+export interface CustomExerciseInput {
+  id: string;
+  name: string;
+  trackingType: TrackingType;
+  primaryMuscle: MuscleGroup;
+  equipment: EquipmentType;
+}
+
+/**
+ * Changes to custom exercises need a connection: fail right away when offline (like routines),
+ * and only finish once the library shows the change, so the next screen already has it.
+ */
+function useExerciseMutation<TVariables>(mutationFn: (variables: TVariables) => Promise<void>) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn,
+    networkMode: 'always',
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['exercises'] }),
+  });
+}
+
+export function useSaveCustomExercise() {
+  return useExerciseMutation(async (exercise: CustomExerciseInput) => {
+    const { error } = await supabase.rpc('save_custom_exercise', {
+      p_exercise: {
+        id: exercise.id,
+        locale,
+        name: exercise.name.trim(),
+        tracking_type: exercise.trackingType,
+        primary_muscle: exercise.primaryMuscle,
+        equipment: exercise.equipment,
+      },
+    });
+    if (error) throw error;
+  });
+}
+
+/** Hides it from the library; workouts and routines that use it keep it. */
+export function useDeleteCustomExercise() {
+  return useExerciseMutation(async (exerciseId: string) => {
+    const { error } = await supabase
+      .from('exercises')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('id', exerciseId);
+    if (error) throw error;
   });
 }
 

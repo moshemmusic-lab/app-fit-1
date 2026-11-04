@@ -120,7 +120,10 @@ El `tracking_type` decide qué campos de la serie se usan. Así el mismo modelo 
 
 - Tipo de registro, músculos, material y disciplina son tipos enumerados de Postgres. Los tipos generados para TypeScript (`packages/shared`) salen de ellos, así que la app y la base de datos no se desincronizan.
 - **La biblioteca global llega por migraciones**, no por `seed.sql`, para que exista igual en local, staging y producción. Cada ejercicio global tiene un `slug` estable: para añadir o corregir ejercicios se escribe una migración nueva que los busca por `slug`.
-- Desde la app es de solo lectura: cualquier usuario con sesión lee los globales y los suyos. Los ejercicios personalizados (con `owner_id`) llegan en el paso 5, que añadirá los permisos de escritura.
+- Cualquier usuario con sesión lee los globales y los suyos. Los globales son de solo lectura.
+- **Ejercicios personalizados** (paso 5): una fila con `owner_id` del usuario, sin `slug`, y una traducción con su nombre. Solo los ve su dueño. Se crean y editan con `save_custom_exercise(jsonb)` (el id lo genera el móvil, así un reintento no crea dos). Su `tracking_type` no se puede cambiar después de crearlo, para no estropear las series ya registradas. Editarlos necesita conexión.
+- **Borrar un ejercicio personalizado es un borrado lógico** (`deleted_at`): desaparece de la biblioteca y del selector, pero los entrenos y rutinas que lo usan lo conservan con su nombre. Los globales no se pueden borrar desde la app.
+- Las referencias de `workout_exercises` y `routine_exercises` a `exercises` se comprueban al final de la transacción (`deferrable initially deferred`): así borrar una cuenta, que borra a la vez sus ejercicios, entrenos y rutinas, funciona; y borrar de verdad un ejercicio que aún usa un entreno sigue siendo imposible.
 - La app descarga la biblioteca entera (unos 150 ejercicios), la guarda en el móvil y busca allí: funciona sin conexión. La búsqueda ignora tildes y mayúsculas y mira nombre, otros nombres, músculo y material.
 - Las imágenes y los vídeos todavía no están: se añadirán con una migración (columna de medios) cuando se decida su origen (§12).
 
@@ -130,7 +133,13 @@ El `tracking_type` decide qué campos de la serie se usan. Así el mismo modelo 
 | `routine_folders` | Carpetas | owner_id, name, position |
 | `routines` | Plantilla de entreno propia o copiada | owner_id, folder_id, name, **discipline**, notes, visibility, copied_from_routine_id |
 | `routine_exercises` | Ejercicios de la rutina | routine_id, exercise_id, position, superset_group, rest_seconds |
-| `routine_sets` | Series objetivo | routine_exercise_id, position, set_type, target_reps, target_weight_kg, target_duration_s |
+| `routine_sets` | Series objetivo | routine_exercise_id, position, set_type, target_reps, target_weight_kg, target_duration_s, target_distance_m |
+
+- Existen desde el paso 5. Las rutinas nuevas son privadas (`visibility = 'private'`); compartirlas y copiarlas (`copied_from_routine_id`) llega en el paso 7.
+- **Una rutina se guarda entera con `save_routine(jsonb)`**, como los entrenos: sustituye sus ejercicios y series de una vez y comprueba que la carpeta y los ejercicios son del usuario. Moverla de carpeta, reordenarla y borrarla (borrado lógico con `deleted_at`) se hace directamente, limitado por privilegios por columna y RLS. Las carpetas las gestiona su dueño directamente.
+- Una rutina solo puede ir a una carpeta de su dueño (clave foránea compuesta). Al borrar una carpeta, sus rutinas se quedan sin carpeta.
+- `workouts.routine_id` recuerda la rutina con la que se empezó un entreno; si la rutina se borra, el entreno se conserva.
+- **Editar rutinas necesita conexión; empezarlas, no.** La lista de rutinas está en la caché del móvil, así que un entreno desde una rutina se empieza en el sótano. Al empezar, cada serie sugiere lo de la última vez y, si no hay, el objetivo de la rutina.
 
 ### 5.4 Entrenos (lo que el usuario hace)
 | Tabla | Para qué | Campos clave |
