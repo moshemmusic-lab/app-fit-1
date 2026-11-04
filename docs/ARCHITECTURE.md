@@ -1,7 +1,7 @@
 # ARCHITECTURE.md — App Fit 1
 
 > **Cómo está construida la aplicación por dentro.** Tecnologías, base de datos, usuarios, pagos y cómo se conectan las piezas.
-> Última actualización: 02/11/2026. Documentos relacionados: [PRODUCT.md](./PRODUCT.md) y [MVP.md](./MVP.md).
+> Última actualización: 04/11/2026. Documentos relacionados: [PRODUCT.md](./PRODUCT.md) y [MVP.md](./MVP.md).
 
 ---
 
@@ -147,13 +147,24 @@ El `tracking_type` decide qué campos de la serie se usan. Así el mismo modelo 
 | `workouts` | Una sesión de entreno | id (generado en el móvil), user_id, **discipline**, **source** (app/imported), external_id, routine_id, enrollment_id, program_session_id, title, started_at, ended_at, notes, visibility |
 | `workout_exercises` | Ejercicios hechos en la sesión | workout_id, exercise_id, position, superset_group, notes |
 | `workout_sets` | Cada serie realizada | workout_exercise_id, position, set_type (warmup/normal/drop/failure), weight_kg, reps, duration_s, distance_m, calories, rpe, completed_at, **prescription_id** |
-| `personal_records` | PRs calculados | user_id, exercise_id, record_type (est_1rm, max_weight, max_reps, max_volume), value, workout_set_id, achieved_at |
-| `body_measurements` | Peso y medidas | user_id, measured_at, weight_kg, … |
+| `personal_records` | Cada vez que una serie batió el mejor valor del usuario en un ejercicio | user_id, exercise_id, workout_id, workout_set_id, record_type (est_1rm, max_weight, max_volume, max_reps, max_duration, max_distance), value, previous_value, achieved_at |
+| `body_measurements` | Peso corporal, uno por día | user_id, measured_on, weight_kg |
 
-- `workouts`, `workout_exercises` y `workout_sets` existen desde el paso 4. `routine_id`, `enrollment_id`, `program_session_id` y `prescription_id` se añadirán con sus tablas (pasos 5 y 10); `personal_records` y `body_measurements`, en el paso 6.
+- `workouts`, `workout_exercises` y `workout_sets` existen desde el paso 4; `routine_id`, desde el paso 5. `enrollment_id`, `program_session_id` y `prescription_id` se añadirán con sus tablas (paso 10). `personal_records` y `body_measurements` existen desde el paso 6.
 - `workouts` lleva `deleted_at` (borrado lógico, contenido del usuario).
 - **La app no escribe estas tablas directamente:** envía el entreno terminado entero a la función `save_workout(jsonb)`, que sustituye lo guardado antes con ese id. Subir dos veces el mismo entreno deja una sola copia, y la función comprueba que el entreno es del usuario y que los ejercicios son globales o suyos.
 - Cada usuario solo lee sus entrenos; el paso 7 abrirá lo que comparta según `visibility`.
+- **Borrar un entreno del historial** es un borrado lógico con `delete_workout(id)`, que además recalcula los récords. Necesita conexión. Un entreno que aún no se ha subido no se puede borrar desde el historial (se perdería).
+
+**Récords (paso 6).** Los calcula la base de datos (`refresh_personal_records`, interna) cada vez que `save_workout()` o `delete_workout()` cambian un entreno, recalculando desde cero los ejercicios afectados. Reglas:
+- Fuerza: 1RM estimado (fórmula de Epley, solo series de 1 a 12 repeticiones; con 1 repetición es el propio peso), peso máximo y mejor serie (peso × repeticiones). Peso corporal: más repeticiones y más lastre. Isométricos: más tiempo. Cardio con distancia: más distancia. Cardio con calorías: sin récords.
+- Los calentamientos y los entrenos borrados no cuentan. Cada entreno cuenta su mejor serie de cada tipo (la primera si empatan), y es récord si supera a los entrenos anteriores; empatar no es récord.
+- La primera vez que se hace un ejercicio se guarda como punto de partida (`previous_value` vacío) y no se celebra.
+- El móvil aplica las mismas reglas (`packages/shared/src/progress/records.ts`) para enseñar los récords en el resumen **sin conexión**, comparando con `personal_bests` (vista con el mejor valor de cada ejercicio, guardada en la caché) y con los entrenos que aún no se han subido. Hay tests con los mismos números en los dos lados.
+
+**Estadísticas.** La vista `workout_stats` (con `security_invoker`, así respeta RLS) da una fila por entreno no borrado con su volumen (peso × repeticiones de las series que no son de calentamiento; en peso corporal solo el lastre), series, ejercicios y récords. El historial, el volumen semanal, el calendario de constancia y el contador del perfil salen de ella, más los entrenos pendientes de subir. Las semanas van de lunes a domingo en la hora del móvil. Supabase devuelve como mucho 1.000 filas por consulta: años de historial; si hiciera falta más, se paginará.
+
+**Peso corporal.** Un registro por día (`unique (user_id, measured_on)`): guardar otra vez el mismo día lo sustituye. Lo escribe la app directamente, limitada por privilegios por columna y RLS, y se borra de verdad (nada más lo usa). Necesita conexión, como las rutinas. Las demás medidas y las fotos de progreso son de la V2.
 
 ### 5.5 Creadores y programas (lo planificado)
 | Tabla | Para qué | Campos clave |
@@ -191,7 +202,7 @@ El `tracking_type` decide qué campos de la serie se usan. Así el mismo modelo 
 2. Rellena cada ejercicio con los valores de la última vez (o con la prescripción si es un programa).
 3. Cada serie marcada se guarda en local al instante y lanza el temporizador de descanso. No hace falta conexión.
 4. Al terminar, la **cola de sincronización** sube el entreno completo a Supabase con una operación idempotente (upsert por id). Si no hay red, reintenta más tarde.
-5. En el servidor, un trigger calcula PRs y estadísticas, y el entreno aparece en el feed según su visibilidad.
+5. En el servidor, `save_workout()` recalcula los récords de los ejercicios del entreno; las estadísticas salen de la vista `workout_stats`. El entreno aparecerá en el feed según su visibilidad (paso 7).
 6. Conflictos: el móvil es la fuente de verdad del entreno en curso; en ediciones posteriores gana el cambio más reciente (`updated_at`).
 
 ### 6.2 Una rutina comprada aparece en el perfil del comprador (venta web, canal principal)
