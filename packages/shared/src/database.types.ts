@@ -65,6 +65,7 @@ export type Database = {
       exercises: {
         Row: {
           created_at: string;
+          deleted_at: string | null;
           disciplines: Database['public']['Enums']['discipline'][];
           equipment: Database['public']['Enums']['equipment_type'];
           id: string;
@@ -78,6 +79,7 @@ export type Database = {
         ComputedFields: never;
         Insert: {
           created_at?: string;
+          deleted_at?: string | null;
           disciplines?: Database['public']['Enums']['discipline'][];
           equipment: Database['public']['Enums']['equipment_type'];
           id?: string;
@@ -90,6 +92,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          deleted_at?: string | null;
           disciplines?: Database['public']['Enums']['discipline'][];
           equipment?: Database['public']['Enums']['equipment_type'];
           id?: string;
@@ -544,6 +547,7 @@ export type Database = {
         };
         Returns: undefined;
       };
+      save_custom_exercise: { Args: { p_exercise: Json }; Returns: undefined };
       save_routine: { Args: { p_routine: Json }; Returns: undefined };
       save_workout: { Args: { p_workout: Json }; Returns: undefined };
     };
