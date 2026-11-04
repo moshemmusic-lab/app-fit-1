@@ -1,7 +1,7 @@
 # MVP.md — App Fit 1
 
 > **Qué desarrollamos primero para lanzar la app al mercado.** Qué es imprescindible y qué puede esperar.
-> Última actualización: 03/11/2026. Documentos relacionados: [PRODUCT.md](./PRODUCT.md) y [ARCHITECTURE.md](./ARCHITECTURE.md).
+> Última actualización: 04/11/2026. Documentos relacionados: [PRODUCT.md](./PRODUCT.md) y [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ---
 
@@ -59,7 +59,7 @@ Las fechas suponen una dedicación semanal alta; se ajustan a las horas reales d
 ### 4.3 Rutinas (fase 1)
 - [x] Crear, editar, duplicar y borrar rutinas; organizarlas en carpetas.
 - [ ] Copiar rutinas de otros usuarios y guardarlas. *Con el paso 7 (hace falta poder ver perfiles); la base de datos ya está preparada.*
-- [ ] Ejercicios personalizados.
+- [x] Ejercicios personalizados.
 - [ ] Límites del plan gratuito (iguales o algo más generosos que Hevy). *Con el Pro (paso 14), para no poner un límite sin forma de quitarlo.*
 
 ### 4.4 Progreso (fase 1)
@@ -156,7 +156,7 @@ Cada paso es una funcionalidad completa de punta a punta (base de datos → lóg
 2. Autenticación (email con código y Apple), onboarding, perfil, ajustes y borrar cuenta. *Hecho (probado en simulador y en iPhone el 03/11/2026).*
 3. Biblioteca de ejercicios (modelo, traducciones, datos iniciales propios o con licencia). *Hecho (148 ejercicios propios).*
 4. **Registrar un entreno** sin conexión + sincronización. *Hecho (probado en simulador el 03/11/2026).*
-5. Rutinas y carpetas.
+5. Rutinas y carpetas. *Hecho (rutinas, carpetas y ejercicios personalizados; probado en simulador el 04/11/2026).*
 6. Historial, PRs y gráficas de progreso.
 7. Seguir, feed, me gusta, comentarios, visibilidad y denuncias.
 8. Compartir en stories.

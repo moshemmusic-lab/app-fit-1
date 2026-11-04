@@ -120,7 +120,10 @@ El `tracking_type` decide qué campos de la serie se usan. Así el mismo modelo 
 
 - Tipo de registro, músculos, material y disciplina son tipos enumerados de Postgres. Los tipos generados para TypeScript (`packages/shared`) salen de ellos, así que la app y la base de datos no se desincronizan.
 - **La biblioteca global llega por migraciones**, no por `seed.sql`, para que exista igual en local, staging y producción. Cada ejercicio global tiene un `slug` estable: para añadir o corregir ejercicios se escribe una migración nueva que los busca por `slug`.
-- Desde la app es de solo lectura: cualquier usuario con sesión lee los globales y los suyos. Los ejercicios personalizados (con `owner_id`) llegan en el paso 5, que añadirá los permisos de escritura.
+- Cualquier usuario con sesión lee los globales y los suyos. Los globales son de solo lectura.
+- **Ejercicios personalizados** (paso 5): una fila con `owner_id` del usuario, sin `slug`, y una traducción con su nombre. Solo los ve su dueño. Se crean y editan con `save_custom_exercise(jsonb)` (el id lo genera el móvil, así un reintento no crea dos). Su `tracking_type` no se puede cambiar después de crearlo, para no estropear las series ya registradas. Editarlos necesita conexión.
+- **Borrar un ejercicio personalizado es un borrado lógico** (`deleted_at`): desaparece de la biblioteca y del selector, pero los entrenos y rutinas que lo usan lo conservan con su nombre. Los globales no se pueden borrar desde la app.
+- Las referencias de `workout_exercises` y `routine_exercises` a `exercises` se comprueban al final de la transacción (`deferrable initially deferred`): así borrar una cuenta, que borra a la vez sus ejercicios, entrenos y rutinas, funciona; y borrar de verdad un ejercicio que aún usa un entreno sigue siendo imposible.
 - La app descarga la biblioteca entera (unos 150 ejercicios), la guarda en el móvil y busca allí: funciona sin conexión. La búsqueda ignora tildes y mayúsculas y mira nombre, otros nombres, músculo y material.
 - Las imágenes y los vídeos todavía no están: se añadirán con una migración (columna de medios) cuando se decida su origen (§12).
 
