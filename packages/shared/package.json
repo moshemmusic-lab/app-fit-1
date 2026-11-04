@@ -10,7 +10,8 @@
     "./schemas": "./src/schemas/index.ts",
     "./database": "./src/database.types.ts",
     "./exercises": "./src/exercises/index.ts",
-    "./workouts": "./src/workouts/index.ts"
+    "./workouts": "./src/workouts/index.ts",
+    "./progress": "./src/progress/index.ts"
   },
   "scripts": {
     "tokens": "node scripts/generate-tokens.ts",

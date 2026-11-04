@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { equipmentTypes, muscleGroups, trackingTypes } from '../exercises';
+import { personalRecordTypes, progressMetricsByTrackingType } from '../progress';
 import { validationErrorKeys } from '../schemas';
 import { es } from './locales/es';
 
@@ -20,6 +21,15 @@ describe('Spanish copy', () => {
     }
     for (const trackingType of trackingTypes) {
       expect(es.trackingTypes[trackingType]).toBeTypeOf('string');
+    }
+  });
+
+  it('names every kind of record and every progress metric', () => {
+    for (const type of personalRecordTypes) {
+      expect(es.records.types[type]).toBeTypeOf('string');
+    }
+    for (const metric of Object.values(progressMetricsByTrackingType).flat()) {
+      expect(es.exerciseProgress.metrics[metric]).toBeTypeOf('string');
     }
   });
 });
