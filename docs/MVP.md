@@ -58,7 +58,7 @@ Las fechas suponen una dedicación semanal alta; se ajustan a las horas reales d
 
 ### 4.3 Rutinas (fase 1)
 - [x] Crear, editar, duplicar y borrar rutinas; organizarlas en carpetas.
-- [ ] Copiar rutinas de otros usuarios y guardarlas. *Con el paso 7 (hace falta poder ver perfiles); la base de datos ya está preparada.*
+- [x] Copiar rutinas de otros usuarios y guardarlas. *Paso 7: se comparten en el perfil y se copian con sus ejercicios personalizados.*
 - [x] Ejercicios personalizados.
 - [ ] Límites del plan gratuito (iguales o algo más generosos que Hevy). *Con el Pro (paso 14), para no poner un límite sin forma de quitarlo.*
 
@@ -70,13 +70,13 @@ Las fechas suponen una dedicación semanal alta; se ajustan a las horas reales d
 - [x] Peso corporal.
 
 ### 4.5 Social (fase 1)
-- [ ] Seguir y dejar de seguir; solicitudes en perfiles privados.
-- [ ] Feed de inicio con los entrenos de la gente que sigues.
-- [ ] Me gusta y comentarios.
-- [ ] Visibilidad por entreno: público, solo seguidores o privado.
+- [x] Seguir y dejar de seguir; solicitudes en perfiles privados. *Paso 7; también bloquear (lo exige la App Store).*
+- [x] Feed de inicio con los entrenos de la gente que sigues.
+- [x] Me gusta y comentarios.
+- [x] Visibilidad por entreno: público, solo seguidores o privado.
 - [ ] Compartir el resumen de un entreno o un PR como imagen para stories.
-- [ ] Botón de denunciar contenido y usuarios.
-- [ ] Buscar usuarios.
+- [x] Botón de denunciar contenido y usuarios. *Se revisan en Supabase hasta el panel de moderación (paso 16).*
+- [x] Buscar usuarios.
 
 ### 4.6 Programas: lado del usuario (fases 1 y 2)
 - [ ] Catálogo con filtros: objetivo, nivel, días por semana, duración, material y precio.
@@ -159,7 +159,7 @@ Cada paso es una funcionalidad completa de punta a punta (base de datos → lóg
 5. Rutinas y carpetas. *Hecho (rutinas, carpetas y ejercicios personalizados; probado en simulador el 04/11/2026).*
 6. Historial, PRs y gráficas de progreso. *Hecho (historial, constancia, récords, gráficas y peso corporal; probado en simulador el 04/11/2026). Fuera: editar entreno terminado, límite de gráficas del plan gratuito (paso 14).*
    - *Mejora antes del paso 7 (05/11/2026): Entrenar, crear rutina y añadir ejercicios rehechos con el flujo de Hevy (barra «Cancelar · Guardar», filtros en hojas, «Recientes», botón (i)) y una sola forma para todos los marcos. Las fotos de los ejercicios siguen pendientes (4.2).*
-7. Seguir, feed, me gusta, comentarios, visibilidad y denuncias.
+7. Seguir, feed, me gusta, comentarios, visibilidad y denuncias. *Hecho (también buscar, bloquear y copiar rutinas compartidas; probado en simulador con dos cuentas el 05/11/2026). Fuera: avisos en el móvil (antes de la beta, paso 9) y listas de seguidores y seguidos.*
 8. Compartir en stories.
 9. **Beta cerrada** (TestFlight y prueba interna de Google Play) → medir activación y retención. Antes: inicio de sesión con Google (necesita development build) y «Exportar mis datos» (decidido el 02/11/2026: se hace cuando ya hay entrenos e historial que exportar, tras el paso 6).
 10. Modelo de programas (versiones, sesiones, prescripciones, entitlements) + panel mínimo de creador.

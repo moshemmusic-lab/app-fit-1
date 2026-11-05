@@ -86,6 +86,8 @@ interface WorkoutState extends PersistedWorkoutState {
   ) => WorkoutSummary | null;
   markUploaded: (workoutId: string) => void;
   markFailed: (workoutId: string, message: string) => void;
+  /** Changes who can see a workout still waiting to upload (it uploads with the new value). */
+  setPendingVisibility: (workoutId: string, visibility: WorkoutVisibility) => void;
   /** Forgets everything of a user on this phone (after deleting the account). */
   clearUser: (userId: string) => void;
 }
@@ -363,6 +365,15 @@ export const useWorkoutStore = create<WorkoutState>()(
 
         markUploaded: (workoutId) =>
           set((state) => ({ pending: state.pending.filter((entry) => entry.id !== workoutId) })),
+
+        setPendingVisibility: (workoutId, visibility) =>
+          set((state) => ({
+            pending: state.pending.map((entry) =>
+              entry.id === workoutId
+                ? { ...entry, payload: { ...entry.payload, visibility } }
+                : entry,
+            ),
+          })),
 
         markFailed: (workoutId, message) =>
           set((state) => ({

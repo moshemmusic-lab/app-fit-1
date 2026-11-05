@@ -1,8 +1,18 @@
+import type { TrackingType } from '@app-fit/shared/exercises';
 import type { WeightUnit } from '@app-fit/shared/schemas';
+import { contentVisibilities } from '@app-fit/shared/social';
 import { formatDuration, workoutVolumeKg } from '@app-fit/shared/workouts';
 import { onlineManager } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ChevronRight, CloudUpload, Ellipsis, Trash2, Trophy } from 'lucide-react-native';
+import {
+  ChevronRight,
+  CloudUpload,
+  Ellipsis,
+  Eye,
+  Flag,
+  Trash2,
+  Trophy,
+} from 'lucide-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, View } from 'react-native';
@@ -17,26 +27,52 @@ import { StatTile } from '@/components/ui/StatTile';
 import { Text } from '@/components/ui/Text';
 import { useSettings } from '@/features/account/api';
 import { useUserId } from '@/features/auth/session';
-import { useExerciseLibrary, type LibraryExercise } from '@/features/exercises/api';
+import { useExerciseLibrary } from '@/features/exercises/api';
 import { useDeleteWorkout, useWorkoutDetail } from '@/features/progress/api';
 import { useProgressFormat } from '@/features/progress/format';
 import type { HistoryExercise, SetRecord, WorkoutDetail } from '@/features/progress/types';
 import { usePreviousFormatter } from '@/features/workouts/fields';
 import { numberSets } from '@/features/workouts/finish';
+import {
+  useSetLike,
+  useSetWorkoutVisibility,
+  useSharedWorkout,
+  useWorkoutSocial,
+} from '@/features/social/api';
+import { LikeCommentBar } from '@/features/social/components/LikeCommentBar';
+import { UserRow } from '@/features/social/components/UserRow';
+import { useSocialErrorAlert } from '@/features/social/format';
+import { openComments, openUser } from '@/features/social/navigation';
+import { useReportSheet } from '@/features/social/report';
+import type { SharedWorkout, UserCard } from '@/features/social/types';
 import { classifyError } from '@/lib/errors';
 import { formatLongDate, formatTime } from '@/lib/dates';
 import { useErrorMessage } from '@/lib/use-error-message';
 import { useTheme } from '@/theme/ThemeProvider';
 
-/** A finished workout: its totals, every set and the records it beat. Can be deleted. */
+/**
+ * A finished workout: its totals, every set and the records it beat, with likes and comments.
+ * Your own can be deleted and you choose who sees it; someone else's (opened with `?owner=`)
+ * can be reported.
+ */
 export default function WorkoutDetailScreen() {
   const { t } = useTranslation();
   const getErrorMessage = useErrorMessage();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, owner } = useLocalSearchParams<{ id: string; owner?: string }>();
   const userId = useUserId();
-  const { query, detail } = useWorkoutDetail(userId, id);
+  const isOthers = owner !== undefined && owner !== userId;
+  const own = useWorkoutDetail(userId, id, !isOthers);
+  const shared = useSharedWorkout(userId, id, isOthers);
+  const query = isOthers ? shared : own.query;
+  const sharedDetail = isOthers ? shared.data : undefined;
+  const detail: WorkoutDetail | null | undefined = isOthers ? shared.data : own.detail;
+  const social = useWorkoutSocial(userId, id, detail != null && !detail.pending);
   const unit = useSettings(userId).data?.units ?? 'kg';
   const deleteWorkout = useDeleteWorkout(userId);
+  const setVisibility = useSetWorkoutVisibility(userId);
+  const setLike = useSetLike(userId);
+  const reportSheet = useReportSheet();
+  const showError = useSocialErrorAlert();
   const [sheet, setSheet] = useState<OptionsSheetConfig | null>(null);
 
   const confirmDelete = () =>
@@ -59,35 +95,80 @@ export default function WorkoutDetailScreen() {
       },
     ]);
 
+  const chooseVisibility = (current: WorkoutDetail['visibility']) =>
+    setSheet({
+      title: t('visibility.title'),
+      options: contentVisibilities.map((visibility) => ({
+        label: t(`visibility.options.${visibility}`),
+        selected: visibility === current,
+        onPress: () => setVisibility.mutate({ workoutId: id, visibility }, { onError: showError }),
+      })),
+    });
+
+  const ownOptions = (current: WorkoutDetail) =>
+    setSheet({
+      options: [
+        {
+          label: `${t('visibility.change')}: ${t(`visibility.options.${current.visibility}`)}`,
+          icon: Eye,
+          onPress: () => chooseVisibility(current.visibility),
+        },
+        { label: t('workoutDetail.delete'), icon: Trash2, onPress: confirmDelete },
+      ],
+    });
+
+  const othersOptions = (workout: SharedWorkout) =>
+    setSheet({
+      options: [
+        {
+          label: t('workoutDetail.report'),
+          icon: Flag,
+          onPress: () =>
+            setSheet(reportSheet('workout', workout.id, workout.owner, () => router.back())),
+        },
+      ],
+    });
+
   return (
     <Screen
       withBottomInset
       onBack={() => router.back()}
       title={detail?.title}
       headerRight={
-        // A workout still on the phone cannot be deleted: it would be lost before uploading.
+        // A workout still on the phone has no options: deleting it would lose it before uploading.
         detail && !detail.pending ? (
           <IconButton
             icon={Ellipsis}
             label={t('workoutDetail.options')}
             disabled={deleteWorkout.isPending}
-            onPress={() =>
-              setSheet({
-                options: [
-                  { label: t('workoutDetail.delete'), icon: Trash2, onPress: confirmDelete },
-                ],
-              })
-            }
+            onPress={() => (sharedDetail ? othersOptions(sharedDetail) : ownOptions(detail))}
           />
         ) : undefined
       }
     >
       {detail ? (
-        <WorkoutContent detail={detail} unit={unit} />
+        <>
+          {sharedDetail ? <OwnerRow owner={sharedDetail.owner} viewer={userId} /> : null}
+          <WorkoutContent detail={detail} unit={unit} exerciseInfo={sharedDetail?.exerciseInfo} />
+          {social.data ? (
+            <LikeCommentBar
+              likeCount={social.data.likeCount}
+              commentCount={social.data.commentCount}
+              liked={social.data.liked}
+              onToggleLike={() =>
+                setLike.mutate(
+                  { workoutId: id, liked: !social.data?.liked },
+                  { onError: showError },
+                )
+              }
+              onOpenComments={() => openComments(id)}
+            />
+          ) : null}
+        </>
       ) : detail === null ? (
         <EmptyState
           title={t('workoutDetail.notFoundTitle')}
-          body={t('workoutDetail.notFoundBody')}
+          body={isOthers ? t('comments.unavailableBody') : t('workoutDetail.notFoundBody')}
         />
       ) : query.isError || query.fetchStatus === 'paused' ? (
         <ErrorState
@@ -103,7 +184,22 @@ export default function WorkoutDetailScreen() {
   );
 }
 
-function WorkoutContent({ detail, unit }: { detail: WorkoutDetail; unit: WeightUnit }) {
+function OwnerRow({ owner, viewer }: { owner: UserCard; viewer: string }) {
+  return <UserRow user={owner} onPress={() => openUser(owner.id, viewer)} />;
+}
+
+type ExerciseInfo = Record<string, { name: string; trackingType: TrackingType }>;
+
+function WorkoutContent({
+  detail,
+  unit,
+  exerciseInfo,
+}: {
+  detail: WorkoutDetail;
+  unit: WeightUnit;
+  /** Names from the server, for someone else's workout (their custom exercises too). */
+  exerciseInfo?: ExerciseInfo;
+}) {
   const { t } = useTranslation();
   const { colors, sizes, spacing } = useTheme();
   const format = useProgressFormat(unit);
@@ -149,27 +245,38 @@ function WorkoutContent({ detail, unit }: { detail: WorkoutDetail; unit: WeightU
         </View>
       ) : null}
 
-      {detail.exercises.map((exercise) => (
-        <ExerciseBlock
-          key={exercise.id}
-          exercise={exercise}
-          libraryExercise={exercisesById.get(exercise.exerciseId)}
-          records={detail.records}
-          unit={unit}
-        />
-      ))}
+      {detail.exercises.map((exercise) => {
+        const libraryExercise = exercisesById.get(exercise.exerciseId);
+        const info = exerciseInfo?.[exercise.exerciseId];
+        return (
+          <ExerciseBlock
+            key={exercise.id}
+            exercise={exercise}
+            name={libraryExercise?.name ?? info?.name}
+            trackingType={libraryExercise?.trackingType ?? info?.trackingType}
+            // Only exercises in the reader's library have a page to open.
+            linkable={libraryExercise !== undefined}
+            records={detail.records}
+            unit={unit}
+          />
+        );
+      })}
     </>
   );
 }
 
 function ExerciseBlock({
   exercise,
-  libraryExercise,
+  name,
+  trackingType,
+  linkable,
   records,
   unit,
 }: {
   exercise: HistoryExercise;
-  libraryExercise: LibraryExercise | undefined;
+  name: string | undefined;
+  trackingType: TrackingType | undefined;
+  linkable: boolean;
   records: readonly SetRecord[];
   unit: WeightUnit;
 }) {
@@ -178,22 +285,21 @@ function ExerciseBlock({
   const format = useProgressFormat(unit);
   const formatSet = usePreviousFormatter(unit);
   const numbers = numberSets(exercise.sets);
-  const trackingType = libraryExercise?.trackingType;
 
   return (
     <Card>
       <Pressable
         accessibilityRole="link"
-        disabled={!libraryExercise}
+        disabled={!linkable}
         onPress={() =>
           router.push({ pathname: '/exercises/[id]', params: { id: exercise.exerciseId } })
         }
         style={{ flexDirection: 'row', alignItems: 'center', gap: spacing[2] }}
       >
         <Text variant="heading" style={{ flex: 1 }}>
-          {libraryExercise?.name ?? '—'}
+          {name ?? '—'}
         </Text>
-        {libraryExercise ? (
+        {linkable ? (
           <ChevronRight size={sizes.icon} strokeWidth={1.8} color={colors.textSubtle} />
         ) : null}
       </Pressable>

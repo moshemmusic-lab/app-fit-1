@@ -1,7 +1,7 @@
 import { weightUnits, workoutVisibilities } from '@app-fit/shared/schemas';
 import { useMutation } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { LogOut, Trash2 } from 'lucide-react-native';
+import { Ban, LogOut, Trash2 } from 'lucide-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
@@ -108,6 +108,13 @@ export default function SettingsScreen() {
               }))}
               value={settings.data.defaultWorkoutVisibility}
               onChange={(defaultWorkoutVisibility) => save({ defaultWorkoutVisibility })}
+            />
+            <Button
+              label={t('settings.blockedUsers')}
+              variant="ghost"
+              align="start"
+              icon={Ban}
+              onPress={() => router.push('/blocked-users')}
             />
           </SettingsSection>
 

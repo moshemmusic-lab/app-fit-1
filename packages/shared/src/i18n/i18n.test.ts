@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { equipmentTypes, muscleGroups, muscleRegionOrder, trackingTypes } from '../exercises';
 import { personalRecordTypes, progressMetricsByTrackingType } from '../progress';
 import { validationErrorKeys } from '../schemas';
+import { contentVisibilities, reportReasons } from '../social';
 import { es } from './locales/es';
 
 describe('Spanish copy', () => {
@@ -24,6 +25,15 @@ describe('Spanish copy', () => {
     }
     for (const region of muscleRegionOrder) {
       expect(es.muscleRegions[region]).toBeTypeOf('string');
+    }
+  });
+
+  it('names every report reason and visibility', () => {
+    for (const reason of reportReasons) {
+      expect(es.report.reasons[reason]).toBeTypeOf('string');
+    }
+    for (const visibility of contentVisibilities) {
+      expect(es.visibility.options[visibility]).toBeTypeOf('string');
     }
   });
 

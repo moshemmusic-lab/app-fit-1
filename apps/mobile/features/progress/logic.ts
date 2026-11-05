@@ -77,6 +77,7 @@ export function pendingToDetail(pending: PendingWorkout): WorkoutDetail {
     startedAt: pending.payload.started_at,
     endedAt: pending.payload.ended_at,
     pending: true,
+    visibility: pending.payload.visibility,
     exercises: payloadExercises(pending.payload),
     records: [],
   };

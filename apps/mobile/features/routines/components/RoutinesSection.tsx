@@ -12,6 +12,7 @@ import {
   FolderPlus,
   MoreHorizontal,
   Pencil,
+  Share2,
   Trash2,
 } from 'lucide-react-native';
 import { useState } from 'react';
@@ -26,6 +27,7 @@ import { OptionsSheet, type OptionsSheetConfig } from '@/components/ui/OptionsSh
 import { ErrorState, LoadingState } from '@/components/ui/StateViews';
 import { Text } from '@/components/ui/Text';
 import { useSettings } from '@/features/account/api';
+import { useSetRoutineVisibility } from '@/features/social/api';
 import { useExerciseLibrary } from '@/features/exercises/api';
 import { useActiveWorkout, useWorkoutStore } from '@/features/workouts/workout-store';
 import { classifyError } from '@/lib/errors';
@@ -109,6 +111,7 @@ export function RoutinesSection({ userId }: { userId: string }) {
   const createFolder = useCreateFolder();
   const renameFolder = useRenameFolder();
   const deleteFolder = useDeleteFolder();
+  const setRoutineVisibility = useSetRoutineVisibility(userId);
 
   const [sheet, setSheet] = useState<OptionsSheetConfig | null>(null);
   const [folderPrompt, setFolderPrompt] = useState<FolderPrompt | null>(null);
@@ -177,6 +180,15 @@ export function RoutinesSection({ userId }: { userId: string }) {
           label: t('routines.edit'),
           icon: Pencil,
           onPress: () => router.push({ pathname: '/routine-editor', params: { id: routine.id } }),
+        },
+        {
+          label: routine.shared ? t('routines.unshare') : t('routines.share'),
+          icon: Share2,
+          onPress: () =>
+            setRoutineVisibility.mutate(
+              { routineId: routine.id, shared: !routine.shared },
+              { onError: showError },
+            ),
         },
         {
           label: t('routines.duplicate'),
@@ -272,6 +284,7 @@ export function RoutinesSection({ userId }: { userId: string }) {
       <RoutineCard
         key={routine.id}
         name={routine.name}
+        shared={routine.shared}
         exerciseNames={namesOf(routine)}
         onStart={() => start(routine)}
         onOptions={() => openRoutineOptions(routine)}

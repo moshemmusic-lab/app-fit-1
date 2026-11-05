@@ -100,6 +100,11 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
         <Stack.Screen name="history" />
         <Stack.Screen name="workouts/[id]" />
         <Stack.Screen name="body-weight" />
+        <Stack.Screen name="search-users" />
+        <Stack.Screen name="users/[id]" />
+        <Stack.Screen name="comments/[workoutId]" />
+        <Stack.Screen name="follow-requests" />
+        <Stack.Screen name="blocked-users" />
       </Stack.Protected>
     </Stack>
   );

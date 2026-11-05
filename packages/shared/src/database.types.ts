@@ -23,6 +23,25 @@ export type Database = {
   };
   public: {
     Tables: {
+      blocks: {
+        Row: {
+          blocked_id: string;
+          blocker_id: string;
+          created_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          blocked_id: string;
+          blocker_id: string;
+          created_at?: string;
+        };
+        Update: {
+          blocked_id?: string;
+          blocker_id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       body_measurements: {
         Row: {
           created_at: string;
@@ -50,6 +69,46 @@ export type Database = {
           weight_kg?: number;
         };
         Relationships: [];
+      };
+      comments: {
+        Row: {
+          body: string;
+          created_at: string;
+          id: string;
+          user_id: string;
+          workout_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          body: string;
+          created_at?: string;
+          id?: string;
+          user_id: string;
+          workout_id: string;
+        };
+        Update: {
+          body?: string;
+          created_at?: string;
+          id?: string;
+          user_id?: string;
+          workout_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'comments_workout_id_fkey';
+            columns: ['workout_id'];
+            isOneToOne: false;
+            referencedRelation: 'workout_stats';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'comments_workout_id_fkey';
+            columns: ['workout_id'];
+            isOneToOne: false;
+            referencedRelation: 'workouts';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       exercise_translations: {
         Row: {
@@ -92,6 +151,7 @@ export type Database = {
       };
       exercises: {
         Row: {
+          copied_from_exercise_id: string | null;
           created_at: string;
           deleted_at: string | null;
           disciplines: Database['public']['Enums']['discipline'][];
@@ -106,6 +166,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          copied_from_exercise_id?: string | null;
           created_at?: string;
           deleted_at?: string | null;
           disciplines?: Database['public']['Enums']['discipline'][];
@@ -119,6 +180,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          copied_from_exercise_id?: string | null;
           created_at?: string;
           deleted_at?: string | null;
           disciplines?: Database['public']['Enums']['discipline'][];
@@ -131,7 +193,74 @@ export type Database = {
           tracking_type?: Database['public']['Enums']['exercise_tracking_type'];
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'exercises_copied_from_exercise_id_fkey';
+            columns: ['copied_from_exercise_id'];
+            isOneToOne: false;
+            referencedRelation: 'exercises';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      follows: {
+        Row: {
+          accepted_at: string | null;
+          created_at: string;
+          follower_id: string;
+          following_id: string;
+          status: Database['public']['Enums']['follow_status'];
+        };
+        ComputedFields: never;
+        Insert: {
+          accepted_at?: string | null;
+          created_at?: string;
+          follower_id: string;
+          following_id: string;
+          status: Database['public']['Enums']['follow_status'];
+        };
+        Update: {
+          accepted_at?: string | null;
+          created_at?: string;
+          follower_id?: string;
+          following_id?: string;
+          status?: Database['public']['Enums']['follow_status'];
+        };
         Relationships: [];
+      };
+      likes: {
+        Row: {
+          created_at: string;
+          user_id: string;
+          workout_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          user_id: string;
+          workout_id: string;
+        };
+        Update: {
+          created_at?: string;
+          user_id?: string;
+          workout_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'likes_workout_id_fkey';
+            columns: ['workout_id'];
+            isOneToOne: false;
+            referencedRelation: 'workout_stats';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'likes_workout_id_fkey';
+            columns: ['workout_id'];
+            isOneToOne: false;
+            referencedRelation: 'workouts';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       personal_records: {
         Row: {
@@ -236,6 +365,43 @@ export type Database = {
           role?: string;
           updated_at?: string;
           username?: string | null;
+        };
+        Relationships: [];
+      };
+      reports: {
+        Row: {
+          created_at: string;
+          details: string;
+          id: string;
+          reason: Database['public']['Enums']['report_reason'];
+          reporter_id: string | null;
+          status: string;
+          target_id: string;
+          target_type: Database['public']['Enums']['report_target'];
+          target_user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          details?: string;
+          id?: string;
+          reason: Database['public']['Enums']['report_reason'];
+          reporter_id?: string | null;
+          status?: string;
+          target_id: string;
+          target_type: Database['public']['Enums']['report_target'];
+          target_user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          details?: string;
+          id?: string;
+          reason?: Database['public']['Enums']['report_reason'];
+          reporter_id?: string | null;
+          status?: string;
+          target_id?: string;
+          target_type?: Database['public']['Enums']['report_target'];
+          target_user_id?: string;
         };
         Relationships: [];
       };
@@ -692,6 +858,12 @@ export type Database = {
       };
     };
     Functions: {
+      add_comment: { Args: { p_body: string; p_workout_id: string }; Returns: string };
+      block_user: { Args: { p_user_id: string }; Returns: undefined };
+      can_view_content: {
+        Args: { p_owner: string; p_viewer: string; p_visibility: string };
+        Returns: boolean;
+      };
       complete_onboarding: {
         Args: {
           p_display_name: string;
@@ -703,14 +875,65 @@ export type Database = {
         };
         Returns: undefined;
       };
+      copy_routine: { Args: { p_routine_id: string }; Returns: string };
+      delete_comment: { Args: { p_comment_id: string }; Returns: undefined };
       delete_workout: { Args: { p_workout_id: string }; Returns: undefined };
+      exercise_name: { Args: { p_exercise_id: string; p_locale: string }; Returns: string };
+      follow_user: {
+        Args: { p_user_id: string };
+        Returns: Database['public']['Enums']['follow_status'];
+      };
+      get_blocked_users: { Args: Record<PropertyKey, never>; Returns: Json };
+      get_comments: { Args: { p_workout_id: string }; Returns: Json };
+      get_feed: {
+        Args: { p_before?: string; p_limit?: number; p_locale?: string; p_user_id?: string };
+        Returns: Json;
+      };
+      get_follow_requests: { Args: Record<PropertyKey, never>; Returns: Json };
+      get_profile: { Args: { p_user_id: string }; Returns: Json };
+      get_user_routines: { Args: { p_locale?: string; p_user_id: string }; Returns: Json };
+      get_workout_detail: { Args: { p_locale?: string; p_workout_id: string }; Returns: Json };
+      get_workout_social: { Args: { p_workout_id: string }; Returns: Json };
+      is_accepted_follower: { Args: { p_follower: string; p_following: string }; Returns: boolean };
+      is_blocked_between: { Args: { p_a: string; p_b: string }; Returns: boolean };
+      profile_card: { Args: { p_user_id: string }; Returns: Json };
       refresh_personal_records: {
         Args: { p_exercise_ids: string[]; p_user_id: string };
+        Returns: undefined;
+      };
+      remove_follower: { Args: { p_follower_id: string }; Returns: undefined };
+      report_content: {
+        Args: {
+          p_details?: string;
+          p_reason: Database['public']['Enums']['report_reason'];
+          p_target_id: string;
+          p_target_type: Database['public']['Enums']['report_target'];
+        };
+        Returns: undefined;
+      };
+      respond_to_follow_request: {
+        Args: { p_accept: boolean; p_follower_id: string };
         Returns: undefined;
       };
       save_custom_exercise: { Args: { p_exercise: Json }; Returns: undefined };
       save_routine: { Args: { p_routine: Json }; Returns: undefined };
       save_workout: { Args: { p_workout: Json }; Returns: undefined };
+      search_users: { Args: { p_limit?: number; p_query: string }; Returns: Json };
+      set_routine_visibility: {
+        Args: { p_routine_id: string; p_visibility: string };
+        Returns: undefined;
+      };
+      set_workout_like: { Args: { p_liked: boolean; p_workout_id: string }; Returns: undefined };
+      set_workout_visibility: {
+        Args: { p_visibility: string; p_workout_id: string };
+        Returns: undefined;
+      };
+      unblock_user: { Args: { p_user_id: string }; Returns: undefined };
+      unfollow_user: { Args: { p_user_id: string }; Returns: undefined };
+      workout_card: {
+        Args: { p_locale: string; p_viewer: string; p_workout_id: string };
+        Returns: Json;
+      };
     };
     Enums: {
       discipline: 'gym';
@@ -729,6 +952,7 @@ export type Database = {
         | 'other';
       exercise_tracking_type:
         'weight_reps' | 'bodyweight_reps' | 'duration' | 'distance_duration' | 'calories_duration';
+      follow_status: 'pending' | 'accepted';
       muscle_group:
         | 'chest'
         | 'shoulders'
@@ -751,6 +975,8 @@ export type Database = {
         | 'cardio';
       personal_record_type:
         'est_1rm' | 'max_weight' | 'max_volume' | 'max_reps' | 'max_duration' | 'max_distance';
+      report_reason: 'spam' | 'harassment' | 'inappropriate' | 'other';
+      report_target: 'workout' | 'comment' | 'user';
       workout_set_type: 'warmup' | 'normal' | 'drop' | 'failure';
       workout_source: 'app' | 'imported';
     };
@@ -889,6 +1115,7 @@ export const Constants = {
         'distance_duration',
         'calories_duration',
       ],
+      follow_status: ['pending', 'accepted'],
       muscle_group: [
         'chest',
         'shoulders',
@@ -918,6 +1145,8 @@ export const Constants = {
         'max_duration',
         'max_distance',
       ],
+      report_reason: ['spam', 'harassment', 'inappropriate', 'other'],
+      report_target: ['workout', 'comment', 'user'],
       workout_set_type: ['warmup', 'normal', 'drop', 'failure'],
       workout_source: ['app', 'imported'],
     },

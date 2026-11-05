@@ -27,6 +27,8 @@ export interface Routine {
   name: string;
   notes: string;
   exercises: RoutineExercise[];
+  /** Shown on the owner's profile, where others can copy it. Missing = not shared. */
+  shared?: boolean;
 }
 
 export interface RoutineFolder {

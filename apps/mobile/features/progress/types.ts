@@ -1,4 +1,5 @@
 import type { PersonalRecordType, RecordSet } from '@app-fit/shared/progress';
+import type { ContentVisibility } from '@app-fit/shared/social';
 import type { SetValues } from '@app-fit/shared/workouts';
 
 /** A finished workout in the history, with the same totals as the summary. */
@@ -40,6 +41,8 @@ export interface WorkoutDetail {
   startedAt: string;
   endedAt: string;
   pending: boolean;
+  /** Who can see it. */
+  visibility: ContentVisibility;
   exercises: HistoryExercise[];
   records: SetRecord[];
 }
