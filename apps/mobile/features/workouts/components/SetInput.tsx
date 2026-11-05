@@ -73,7 +73,7 @@ export function SetInput({
       style={{
         flex: 1,
         minHeight: sizes.touchMin,
-        borderRadius: radius.sm,
+        borderRadius: radius.md,
         backgroundColor: colors.surface2,
         color: colors.text,
         textAlign: 'center',

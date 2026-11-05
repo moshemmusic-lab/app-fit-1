@@ -41,7 +41,7 @@ export function WorkoutCard({ entry, unit }: WorkoutCardProps) {
         alignItems: 'center',
         gap: spacing[3],
         padding: spacing[4],
-        borderRadius: radius.lg,
+        borderRadius: radius.md,
         backgroundColor: pressed ? colors.surface2 : colors.surface,
       })}
     >

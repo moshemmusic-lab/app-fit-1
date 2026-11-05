@@ -15,7 +15,7 @@ export function EmptyState({ title, body }: EmptyStateProps) {
     <View
       style={{
         backgroundColor: colors.surface,
-        borderRadius: radius.lg,
+        borderRadius: radius.md,
         padding: spacing[4],
         gap: spacing[1],
       }}

@@ -94,7 +94,7 @@ function ExerciseDetails({ exercise }: { exercise: LibraryExercise }) {
         style={{
           padding: spacing[4],
           gap: spacing[4],
-          borderRadius: radius.lg,
+          borderRadius: radius.md,
           backgroundColor: colors.surface,
         }}
       >

@@ -73,8 +73,8 @@ export function OptionsSheet({ config, onClose }: OptionsSheetProps) {
             paddingTop: spacing[4],
             paddingBottom: Math.max(insets.bottom, spacing[4]),
             gap: spacing[1],
-            borderTopLeftRadius: radius.xl,
-            borderTopRightRadius: radius.xl,
+            borderTopLeftRadius: radius.md,
+            borderTopRightRadius: radius.md,
             backgroundColor: colors.surface,
           }}
         >

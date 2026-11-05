@@ -84,7 +84,7 @@ export function RestTimerBar() {
       style={{
         padding: spacing[3],
         gap: spacing[2],
-        borderRadius: radius.lg,
+        borderRadius: radius.md,
         backgroundColor: colors.surface2,
       }}
     >

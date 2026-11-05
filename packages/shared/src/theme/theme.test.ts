@@ -31,7 +31,7 @@ describe('design tokens', () => {
 
   it('converts sizes to pixels', () => {
     expect(themes.dark.spacing[4]).toBe(16);
-    expect(themes.dark.radius.lg).toBe(18);
+    expect(themes.dark.radius.md).toBe(12);
     expect(themes.dark.sizes.touchMin).toBe(44);
     expect(themes.dark.typography.displayXl.lineHeight).toBe(90);
     expect(themes.dark.typography.label.letterSpacing).toBe(0.66);
