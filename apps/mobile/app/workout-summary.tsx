@@ -10,6 +10,7 @@ import { StatTile } from '@/components/ui/StatTile';
 import { Text } from '@/components/ui/Text';
 import { useSettings } from '@/features/account/api';
 import { useUserId } from '@/features/auth/session';
+import { NewRecordsCard } from '@/features/progress/components/NewRecordsCard';
 import { usePendingWorkouts, useWorkoutStore } from '@/features/workouts/workout-store';
 import { useTheme } from '@/theme/ThemeProvider';
 
@@ -52,12 +53,24 @@ export default function WorkoutSummaryScreen() {
         </View>
       </View>
 
+      {summary.records && summary.records.length > 0 ? (
+        <NewRecordsCard records={summary.records} unit={unit} />
+      ) : null}
+
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing[2] }}>
         <SyncIcon size={sizes.icon} strokeWidth={1.8} color={colors.textMuted} />
         <Text variant="body" color="textMuted" style={{ flex: 1 }}>
           {uploaded ? t('workoutSummary.savedOnline') : t('workoutSummary.savedOffline')}
         </Text>
       </View>
+
+      <Button
+        label={t('workoutSummary.seeWorkout')}
+        variant="ghost"
+        onPress={() =>
+          router.push({ pathname: '/workouts/[id]', params: { id: summary.workoutId } })
+        }
+      />
     </Screen>
   );
 }

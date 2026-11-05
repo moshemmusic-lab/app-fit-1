@@ -10,7 +10,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { useShallow } from 'zustand/react/shallow';
 
-import { finishWorkout, newDraftSets } from './finish';
+import { finishWorkout, newDraftSets, type RecordContext } from './finish';
 import { defaultRestSeconds } from './rest';
 import type {
   ActiveWorkout,
@@ -78,8 +78,12 @@ interface WorkoutState extends PersistedWorkoutState {
   setRestTimer: (timer: RestTimer | null) => void;
   setRestNotificationId: (notificationId: string | null) => void;
   discard: () => void;
-  /** Moves the workout to the upload queue. Returns its summary. */
-  finish: (endedAt: Date, fallbackTitle: string) => WorkoutSummary | null;
+  /** Moves the workout to the upload queue. Returns its summary (with its new records). */
+  finish: (
+    endedAt: Date,
+    fallbackTitle: string,
+    recordContext?: RecordContext,
+  ) => WorkoutSummary | null;
   markUploaded: (workoutId: string) => void;
   markFailed: (workoutId: string, message: string) => void;
   /** Forgets everything of a user on this phone (after deleting the account). */
@@ -329,10 +333,10 @@ export const useWorkoutStore = create<WorkoutState>()(
 
         discard: () => set({ active: null, restTimer: null }),
 
-        finish: (endedAt, fallbackTitle) => {
+        finish: (endedAt, fallbackTitle, recordContext) => {
           const { active, pending, lastSetsByUser } = get();
           if (!active) return null;
-          const finished = finishWorkout(active, endedAt, fallbackTitle);
+          const finished = finishWorkout(active, endedAt, fallbackTitle, recordContext);
           // One write: the workout is never both gone from "active" and missing from the queue.
           set({
             active: null,

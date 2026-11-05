@@ -35,6 +35,7 @@ import { TextField } from '@/components/ui/TextField';
 import { useSettings } from '@/features/account/api';
 import { useUserId } from '@/features/auth/session';
 import { useExerciseLibrary } from '@/features/exercises/api';
+import { useRecordBests } from '@/features/progress/api';
 import { ElapsedTime } from '@/features/workouts/components/ElapsedTime';
 import { RestTimerBar } from '@/features/workouts/components/RestTimerBar';
 import { WorkoutExerciseCard } from '@/features/workouts/components/WorkoutExerciseCard';
@@ -57,6 +58,8 @@ export default function ActiveWorkoutScreen() {
   const library = useExerciseLibrary();
   const unit = useSettings(userId).data?.units ?? 'kg';
   const lastSets = useLastSets(userId);
+  // Bests to beat, so the summary shows the new records even offline.
+  const recordContext = useRecordBests(userId);
   const rest = useRestTimerControls();
   const [sheet, setSheet] = useState<OptionsSheetConfig | null>(null);
   // Exercises whose note field was opened with "Añadir nota" (the rest show it when it has text).
@@ -126,7 +129,7 @@ export default function ActiveWorkoutScreen() {
     }
     const save = () => {
       rest.stop();
-      store().finish(new Date(), defaultTitle);
+      store().finish(new Date(), defaultTitle, recordContext);
       void syncPendingWorkouts(userId);
       router.replace('/workout-summary');
     };

@@ -1,3 +1,5 @@
+import type { TrackingType } from '@app-fit/shared/exercises';
+import { findNewRecords, type RecordBests } from '@app-fit/shared/progress';
 import { emptySetValues, workoutVolumeKg, type SetValues } from '@app-fit/shared/workouts';
 
 import type {
@@ -56,6 +58,12 @@ export function hasIncompleteSets(workout: ActiveWorkout): boolean {
   );
 }
 
+/** What the summary needs to find the new records: the earlier bests (may be empty). */
+export interface RecordContext {
+  bests: RecordBests;
+  trackingTypeOf: (exerciseId: string) => TrackingType | undefined;
+}
+
 export interface FinishedWorkout {
   payload: WorkoutPayload;
   summary: WorkoutSummary;
@@ -72,6 +80,7 @@ export function finishWorkout(
   workout: ActiveWorkout,
   endedAt: Date,
   fallbackTitle: string,
+  recordContext?: RecordContext,
 ): FinishedWorkout {
   const exercises = workout.exercises
     .map((exercise) => ({
@@ -135,6 +144,10 @@ export function finishWorkout(
       volumeKg: workoutVolumeKg(workingSets),
       setCount: workingSets.reduce((total, exercise) => total + exercise.sets.length, 0),
       exerciseCount: exercises.length,
+      // Found on the phone, so the summary shows them offline. The server computes the same.
+      records: recordContext
+        ? findNewRecords(exercises, recordContext.bests, recordContext.trackingTypeOf)
+        : [],
     },
   };
 }

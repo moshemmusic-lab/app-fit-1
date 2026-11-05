@@ -14,6 +14,7 @@ import { Text } from '@/components/ui/Text';
 import { useProfile } from '@/features/account/api';
 import { avatarUrl } from '@/features/account/avatar';
 import { useUserId } from '@/features/auth/session';
+import { useTrainingLog } from '@/features/progress/api';
 import { useErrorMessage } from '@/lib/use-error-message';
 import { useTheme } from '@/theme/ThemeProvider';
 
@@ -23,7 +24,9 @@ export default function ProfileScreen() {
   const { t } = useTranslation();
   const { colors, sizes, spacing } = useTheme();
   const getErrorMessage = useErrorMessage();
-  const profile = useProfile(useUserId());
+  const userId = useUserId();
+  const profile = useProfile(userId);
+  const workouts = useTrainingLog(userId).entries;
 
   return (
     <Screen
@@ -65,9 +68,12 @@ export default function ProfileScreen() {
 
           {profile.data.bio ? <Text variant="body">{profile.data.bio}</Text> : null}
 
-          {/* Real counts arrive with workouts (step 4) and follows (step 7). */}
+          {/* Followers and following arrive with step 7. */}
           <View style={{ flexDirection: 'row', gap: spacing[2] }}>
-            <StatTile label={t('profile.stats.workouts')} value="0" />
+            <StatTile
+              label={t('profile.stats.workouts')}
+              value={workouts ? String(workouts.length) : '–'}
+            />
             <StatTile label={t('profile.stats.followers')} value="0" />
             <StatTile label={t('profile.stats.following')} value="0" />
           </View>
@@ -78,7 +84,10 @@ export default function ProfileScreen() {
             onPress={() => router.push('/edit-profile')}
           />
 
-          <EmptyState title={t('profile.emptyTitle')} body={t('profile.emptyBody')} />
+          {/* Until step 7 shows them here, a hint for accounts without workouts. */}
+          {workouts?.length === 0 ? (
+            <EmptyState title={t('profile.emptyTitle')} body={t('profile.emptyBody')} />
+          ) : null}
         </>
       ) : profile.isError || profile.fetchStatus === 'paused' ? (
         // Paused = offline with nothing saved on the phone yet: say so instead of loading forever.

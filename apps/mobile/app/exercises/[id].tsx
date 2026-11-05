@@ -14,6 +14,7 @@ import {
   useExercise,
   type LibraryExercise,
 } from '@/features/exercises/api';
+import { ExerciseProgress } from '@/features/progress/components/ExerciseProgress';
 import { classifyError } from '@/lib/errors';
 import { useErrorMessage } from '@/lib/use-error-message';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -110,6 +111,8 @@ function ExerciseDetails({ exercise }: { exercise: LibraryExercise }) {
           value={t(`trackingTypes.${exercise.trackingType}`)}
         />
       </View>
+
+      <ExerciseProgress exercise={exercise} />
 
       {exercise.instructions.length > 0 ? (
         <View style={{ gap: spacing[3] }}>

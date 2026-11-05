@@ -2,7 +2,9 @@ import { onlineManager } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { AppState } from 'react-native';
 
+import { progressKeys } from '@/features/progress/keys';
 import { classifyError } from '@/lib/errors';
+import { queryClient } from '@/lib/query-client';
 import { supabase } from '@/lib/supabase';
 
 import { useWorkoutStore } from './workout-store';
@@ -15,7 +17,9 @@ async function uploadQueue(userId: string): Promise<void> {
   for (const entry of queue) {
     const { error } = await supabase.rpc('save_workout', { p_workout: entry.payload });
     if (!error) {
-      // Only now does the workout leave the phone's queue.
+      // Refresh the history and records first, so the workout never vanishes from them in
+      // between (until then the queue copy is shown). Then it leaves the phone's queue.
+      await queryClient.invalidateQueries({ queryKey: progressKeys.all(userId) });
       useWorkoutStore.getState().markUploaded(entry.id);
       continue;
     }

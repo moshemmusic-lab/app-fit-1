@@ -54,7 +54,7 @@ Las fechas suponen una dedicación semanal alta; se ajustan a las horas reales d
 - [x] Añadir, quitar, reordenar y sustituir ejercicios durante el entreno.
 - [x] Notas por ejercicio y por entreno.
 - [x] **Funciona sin conexión** y sincroniza al recuperarla.
-- [ ] Resumen al terminar: duración, volumen, PRs conseguidos y botón de compartir. *Duración, volumen y series, hechos (paso 4); los PRs llegan en el paso 6 y el botón de compartir en el paso 8.*
+- [ ] Resumen al terminar: duración, volumen, PRs conseguidos y botón de compartir. *Duración, volumen, series y récords, hechos (pasos 4 y 6; los récords también sin conexión); el botón de compartir llega en el paso 8.*
 
 ### 4.3 Rutinas (fase 1)
 - [x] Crear, editar, duplicar y borrar rutinas; organizarlas en carpetas.
@@ -63,11 +63,11 @@ Las fechas suponen una dedicación semanal alta; se ajustan a las horas reales d
 - [ ] Límites del plan gratuito (iguales o algo más generosos que Hevy). *Con el Pro (paso 14), para no poner un límite sin forma de quitarlo.*
 
 ### 4.4 Progreso (fase 1)
-- [ ] Historial de entrenos con calendario de constancia.
-- [ ] PRs automáticos: 1RM estimado, peso máximo, repeticiones máximas y volumen.
-- [ ] Gráfica de progreso por ejercicio.
-- [ ] Volumen semanal.
-- [ ] Peso corporal.
+- [x] Historial de entrenos con calendario de constancia. *Con racha de semanas seguidas; borrar entrenos, sí; editar uno ya terminado, más adelante.*
+- [x] PRs automáticos: 1RM estimado, peso máximo, repeticiones máximas y volumen. *También más tiempo y más distancia en cardio; la primera vez con un ejercicio no cuenta como récord.*
+- [x] Gráfica de progreso por ejercicio.
+- [x] Volumen semanal.
+- [x] Peso corporal.
 
 ### 4.5 Social (fase 1)
 - [ ] Seguir y dejar de seguir; solicitudes en perfiles privados.
@@ -157,7 +157,7 @@ Cada paso es una funcionalidad completa de punta a punta (base de datos → lóg
 3. Biblioteca de ejercicios (modelo, traducciones, datos iniciales propios o con licencia). *Hecho (148 ejercicios propios).*
 4. **Registrar un entreno** sin conexión + sincronización. *Hecho (probado en simulador el 03/11/2026).*
 5. Rutinas y carpetas. *Hecho (rutinas, carpetas y ejercicios personalizados; probado en simulador el 04/11/2026).*
-6. Historial, PRs y gráficas de progreso.
+6. Historial, PRs y gráficas de progreso. *Hecho (historial, constancia, récords, gráficas y peso corporal; probado en simulador el 04/11/2026). Fuera: editar entreno terminado, límite de gráficas del plan gratuito (paso 14).*
 7. Seguir, feed, me gusta, comentarios, visibilidad y denuncias.
 8. Compartir en stories.
 9. **Beta cerrada** (TestFlight y prueba interna de Google Play) → medir activación y retención. Antes: inicio de sesión con Google (necesita development build) y «Exportar mis datos» (decidido el 02/11/2026: se hace cuando ya hay entrenos e historial que exportar, tras el paso 6).
