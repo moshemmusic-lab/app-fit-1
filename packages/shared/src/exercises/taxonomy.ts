@@ -14,3 +14,15 @@ export const trackingTypes: readonly TrackingType[] = Constants.public.Enums.exe
 
 /** Exercise names and instructions are stored per language and country (es-ES, es-MX…). */
 export const defaultExerciseLocale = 'es-ES';
+
+export type MuscleRegion = 'upper' | 'core' | 'lower' | 'other';
+
+/** How the muscle filter groups the muscles (every muscle in exactly one region). */
+export const muscleRegions: Readonly<Record<MuscleRegion, readonly MuscleGroup[]>> = {
+  upper: ['chest', 'shoulders', 'biceps', 'triceps', 'forearms', 'upper_back', 'lats', 'traps'],
+  core: ['abs', 'obliques', 'lower_back'],
+  lower: ['glutes', 'quadriceps', 'hamstrings', 'adductors', 'abductors', 'calves'],
+  other: ['full_body', 'cardio'],
+};
+
+export const muscleRegionOrder: readonly MuscleRegion[] = ['upper', 'core', 'lower', 'other'];

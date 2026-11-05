@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { equipmentTypes, muscleGroups, trackingTypes } from '../exercises';
+import { equipmentTypes, muscleGroups, muscleRegionOrder, trackingTypes } from '../exercises';
 import { personalRecordTypes, progressMetricsByTrackingType } from '../progress';
 import { validationErrorKeys } from '../schemas';
 import { es } from './locales/es';
@@ -21,6 +21,9 @@ describe('Spanish copy', () => {
     }
     for (const trackingType of trackingTypes) {
       expect(es.trackingTypes[trackingType]).toBeTypeOf('string');
+    }
+    for (const region of muscleRegionOrder) {
+      expect(es.muscleRegions[region]).toBeTypeOf('string');
     }
   });
 
