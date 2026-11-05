@@ -34,9 +34,18 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Movyn usa tus fotos solo para tu foto de perfil.",
+          "photosPermission": "Movyn usa las fotos que eliges para tu foto de perfil y como fondo de las imágenes que compartes.",
           "cameraPermission": false,
           "microphonePermission": false
+        }
+      ],
+      "expo-sharing",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Movyn usa las fotos que eliges para tu foto de perfil y como fondo de las imágenes que compartes.",
+          "savePhotosPermission": "Movyn guarda en tus fotos las imágenes de entrenos que decides guardar.",
+          "isAccessMediaLocationEnabled": false
         }
       ]
     ],

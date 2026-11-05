@@ -14,6 +14,11 @@ export function useTheme(): Theme {
   return use(ThemeContext);
 }
 
+/** Draws its children with one theme whatever the user chose (e.g. a shared image, always dark). */
+export function FixedTheme({ mode, children }: { mode: Theme['mode']; children: ReactNode }) {
+  return <ThemeContext value={themes[mode]}>{children}</ThemeContext>;
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const preference = useThemePreferenceStore((state) => state.preference);
   const systemScheme = useColorScheme();

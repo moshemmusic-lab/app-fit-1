@@ -54,7 +54,7 @@ Las fechas suponen una dedicación semanal alta; se ajustan a las horas reales d
 - [x] Añadir, quitar, reordenar y sustituir ejercicios durante el entreno.
 - [x] Notas por ejercicio y por entreno.
 - [x] **Funciona sin conexión** y sincroniza al recuperarla.
-- [ ] Resumen al terminar: duración, volumen, PRs conseguidos y botón de compartir. *Duración, volumen, series y récords, hechos (pasos 4 y 6; los récords también sin conexión); el botón de compartir llega en el paso 8.*
+- [x] Resumen al terminar: duración, volumen, PRs conseguidos y botón de compartir. *Duración, volumen, series y récords (pasos 4 y 6; los récords también sin conexión); «Compartir» desde el paso 8.*
 
 ### 4.3 Rutinas (fase 1)
 - [x] Crear, editar, duplicar y borrar rutinas; organizarlas en carpetas.
@@ -74,7 +74,7 @@ Las fechas suponen una dedicación semanal alta; se ajustan a las horas reales d
 - [x] Feed de inicio con los entrenos de la gente que sigues.
 - [x] Me gusta y comentarios.
 - [x] Visibilidad por entreno: público, solo seguidores o privado.
-- [ ] Compartir el resumen de un entreno o un PR como imagen para stories.
+- [x] Compartir el resumen de un entreno o un PR como imagen para stories. *Paso 8: imagen 9:16 con dos diseños (entreno o récord) y fondo Movyn o una foto tuya; se comparte con el menú del móvil o se guarda en Fotos. El botón directo a Instagram Stories, con la development build (paso 9).*
 - [x] Botón de denunciar contenido y usuarios. *Se revisan en Supabase hasta el panel de moderación (paso 16).*
 - [x] Buscar usuarios.
 
@@ -160,7 +160,7 @@ Cada paso es una funcionalidad completa de punta a punta (base de datos → lóg
 6. Historial, PRs y gráficas de progreso. *Hecho (historial, constancia, récords, gráficas y peso corporal; probado en simulador el 04/11/2026). Fuera: editar entreno terminado, límite de gráficas del plan gratuito (paso 14).*
    - *Mejora antes del paso 7 (05/11/2026): Entrenar, crear rutina y añadir ejercicios rehechos con el flujo de Hevy (barra «Cancelar · Guardar», filtros en hojas, «Recientes», botón (i)) y una sola forma para todos los marcos. Las fotos de los ejercicios siguen pendientes (4.2).*
 7. Seguir, feed, me gusta, comentarios, visibilidad y denuncias. *Hecho (también buscar, bloquear y copiar rutinas compartidas; probado en simulador con dos cuentas el 05/11/2026). Fuera: avisos en el móvil (antes de la beta, paso 9) y listas de seguidores y seguidos.*
-8. Compartir en stories.
+8. Compartir en stories. *Hecho (desde el resumen y desde el «…» de tus entrenos; probado en simulador el 05/11/2026: compartir, guardar en Fotos y fondo con foto). Fuera: botón directo a Instagram Stories (necesita development build, paso 9).*
 9. **Beta cerrada** (TestFlight y prueba interna de Google Play) → medir activación y retención. Antes: inicio de sesión con Google (necesita development build) y «Exportar mis datos» (decidido el 02/11/2026: se hace cuando ya hay entrenos e historial que exportar, tras el paso 6).
 10. Modelo de programas (versiones, sesiones, prescripciones, entitlements) + panel mínimo de creador.
 11. Programas en la app: «Mis programas», fecha de inicio, «Hoy toca», progreso frente al plan → programas piloto gratuitos.

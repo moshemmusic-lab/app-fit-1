@@ -2,7 +2,7 @@ import type { WorkoutVisibility } from '@app-fit/shared/schemas';
 import { contentVisibilities } from '@app-fit/shared/social';
 import { formatDecimal, formatDuration, fromKg } from '@app-fit/shared/workouts';
 import { Redirect, router } from 'expo-router';
-import { ChevronRight, CloudCheck, CloudUpload, Eye } from 'lucide-react-native';
+import { ChevronRight, CloudCheck, CloudUpload, Eye, Share2 } from 'lucide-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
@@ -116,6 +116,15 @@ export default function WorkoutSummaryScreen() {
           {uploaded ? t('workoutSummary.savedOnline') : t('workoutSummary.savedOffline')}
         </Text>
       </View>
+
+      <Button
+        label={t('workoutSummary.share')}
+        variant="secondary"
+        icon={Share2}
+        onPress={() =>
+          router.push({ pathname: '/share/[workoutId]', params: { workoutId: summary.workoutId } })
+        }
+      />
 
       <Button
         label={t('workoutSummary.seeWorkout')}

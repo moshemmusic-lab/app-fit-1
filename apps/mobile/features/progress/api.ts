@@ -73,7 +73,7 @@ async function fetchWorkout(workoutId: string): Promise<WorkoutDetail | null> {
   const { data, error } = await supabase
     .from('workouts')
     .select(
-      `id, title, notes, visibility, started_at, ended_at, deleted_at, workout_exercises (id, exercise_id, position, notes, workout_sets (${SET_COLUMNS})), personal_records (workout_set_id, record_type, previous_value)`,
+      `id, title, notes, visibility, started_at, ended_at, deleted_at, workout_exercises (id, exercise_id, position, notes, workout_sets (${SET_COLUMNS})), personal_records (workout_set_id, record_type, value, previous_value)`,
     )
     .eq('id', workoutId)
     .maybeSingle();
@@ -104,7 +104,12 @@ async function fetchWorkout(workoutId: string): Promise<WorkoutDetail | null> {
     // First times are starting points, not records.
     records: data.personal_records
       .filter((record) => record.previous_value !== null)
-      .map((record) => ({ setId: record.workout_set_id, recordType: record.record_type })),
+      .map((record) => ({
+        setId: record.workout_set_id,
+        recordType: record.record_type,
+        value: Number(record.value),
+        previousValue: record.previous_value === null ? null : Number(record.previous_value),
+      })),
   };
 }
 

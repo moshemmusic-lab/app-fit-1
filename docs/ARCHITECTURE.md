@@ -257,6 +257,7 @@ El `tracking_type` decide qué campos de la serie se usan. Así el mismo modelo 
 
 ### 6.7 Feed, cohortes y rankings
 - **Feed de inicio:** tus entrenos y los de la gente que sigues, según su visibilidad, del más reciente al más antiguo, de 20 en 20 (`get_feed`). Me gusta al instante en la pantalla (se confirma después) y comentarios en su propia pantalla. Avisos en el móvil: antes de la beta (paso 9), con una development build.
+- **Compartir en stories (paso 8):** la pantalla `share/[workoutId]` dibuja una imagen de 360 × 640 puntos (1080 × 1920 píxeles en un móvil 3x) siempre en el tema oscuro, con el logo, la fecha, el @usuario y las unidades del usuario. Dos diseños: el entreno (título, duración, volumen, series y ejercicios) o el récord más destacado (el que más mejora el anterior), solo si el entreno batió alguno. Fondo Movyn o una foto de la galería, oscurecida para que el texto se lea. `react-native-view-shot` la convierte en PNG; `expo-sharing` abre el menú del móvil y `expo-media-library` la guarda en Fotos (solo pide permiso para añadir, no para leer la fototeca). No toca la base de datos ni sube nada. Funciona en Expo Go; el botón directo a Instagram Stories necesita una development build.
 - **Feed de la cohorte:** entrenos vinculados a un `enrollment` del mismo programa.
 - **Ranking semanal de la cohorte:** vista materializada que se recalcula periódicamente.
 

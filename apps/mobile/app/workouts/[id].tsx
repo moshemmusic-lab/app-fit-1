@@ -10,6 +10,7 @@ import {
   Ellipsis,
   Eye,
   Flag,
+  Share2,
   Trash2,
   Trophy,
 } from 'lucide-react-native';
@@ -108,6 +109,11 @@ export default function WorkoutDetailScreen() {
   const ownOptions = (current: WorkoutDetail) =>
     setSheet({
       options: [
+        {
+          label: t('workoutDetail.share'),
+          icon: Share2,
+          onPress: () => router.push({ pathname: '/share/[workoutId]', params: { workoutId: id } }),
+        },
         {
           label: `${t('visibility.change')}: ${t(`visibility.options.${current.visibility}`)}`,
           icon: Eye,
