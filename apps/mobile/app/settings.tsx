@@ -1,7 +1,8 @@
+import { csvColumns } from '@app-fit/shared/export';
 import { weightUnits, workoutVisibilities } from '@app-fit/shared/schemas';
 import { useMutation } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { Ban, LogOut, Trash2 } from 'lucide-react-native';
+import { Ban, Download, FileJson, FileSpreadsheet, LogOut, Trash2 } from 'lucide-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
@@ -9,16 +10,19 @@ import { Alert } from 'react-native';
 import { Button } from '@/components/ui/Button';
 import { ChipGroup } from '@/components/ui/ChipGroup';
 import { FormMessage } from '@/components/ui/FormMessage';
+import { OptionsSheet, type OptionsSheetConfig } from '@/components/ui/OptionsSheet';
 import { Screen } from '@/components/ui/Screen';
 import { ErrorState, LoadingState } from '@/components/ui/StateViews';
 import { SwitchRow } from '@/components/ui/SwitchRow';
 import { Text } from '@/components/ui/Text';
 import { useSettings, useUpdateSettings, type SettingsPatch } from '@/features/account/api';
+import { exportMyData, type ExportFormat } from '@/features/account/export';
 import { deleteAccount, signOut } from '@/features/auth/api';
 import { useSession, useUserId } from '@/features/auth/session';
 import { SettingsSection } from '@/features/settings/components/SettingsSection';
 import { ThemePreferencePicker } from '@/features/settings/components/ThemePreferencePicker';
 import { usePendingWorkouts, useWorkoutStore } from '@/features/workouts/workout-store';
+import { formatFileDate } from '@/lib/dates';
 import { useErrorMessage } from '@/lib/use-error-message';
 
 export default function SettingsScreen() {
@@ -31,6 +35,7 @@ export default function SettingsScreen() {
   const pendingWorkouts = usePendingWorkouts(userId);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [accountError, setAccountError] = useState<string | null>(null);
+  const [sheet, setSheet] = useState<OptionsSheetConfig | null>(null);
 
   const save = (patch: SettingsPatch) => {
     setSaveError(null);
@@ -63,6 +68,58 @@ export default function SettingsScreen() {
       { text: t('settings.signOut'), onPress: () => signOutMutation.mutate() },
     ]);
   };
+
+  const exportMutation = useMutation({
+    mutationFn: (format: ExportFormat) => {
+      const date = formatFileDate(new Date());
+      return exportMyData({
+        format,
+        fileName:
+          format === 'json'
+            ? t('settings.exportFileJson', { date })
+            : t('settings.exportFileCsv', { date }),
+        csvLabels: {
+          columns: Object.fromEntries(
+            csvColumns.map((column) => [column, t(`settings.csvColumns.${column}`)]),
+          ) as Record<(typeof csvColumns)[number], string>,
+          setTypes: {
+            warmup: t('activeWorkout.setTypes.warmup'),
+            normal: t('activeWorkout.setTypes.normal'),
+            drop: t('activeWorkout.setTypes.drop'),
+            failure: t('activeWorkout.setTypes.failure'),
+          },
+        },
+        dialogTitle: t('settings.exportData'),
+      });
+    },
+    onError: (error) => setAccountError(`${t('settings.exportFailed')} ${getErrorMessage(error)}`),
+  });
+
+  // The file comes from the server: workouts still waiting to upload are not in it yet.
+  const startExport = (format: ExportFormat) => {
+    setAccountError(null);
+    if (pendingWorkouts.length === 0) {
+      exportMutation.mutate(format);
+      return;
+    }
+    Alert.alert(t('settings.exportPendingTitle'), t('settings.exportPendingBody'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('settings.exportAnyway'), onPress: () => exportMutation.mutate(format) },
+    ]);
+  };
+
+  const chooseExport = () =>
+    setSheet({
+      title: t('settings.exportSheetTitle'),
+      options: [
+        { label: t('settings.exportJson'), icon: FileJson, onPress: () => startExport('json') },
+        {
+          label: t('settings.exportCsv'),
+          icon: FileSpreadsheet,
+          onPress: () => startExport('csv'),
+        },
+      ],
+    });
 
   const confirmDelete = () => {
     Alert.alert(t('settings.deleteConfirmTitle'), t('settings.deleteConfirmBody'), [
@@ -155,6 +212,14 @@ export default function SettingsScreen() {
           </Text>
         ) : null}
         <Button
+          label={t('settings.exportData')}
+          variant="secondary"
+          icon={Download}
+          loading={exportMutation.isPending}
+          disabled={signOutMutation.isPending || deleteMutation.isPending}
+          onPress={chooseExport}
+        />
+        <Button
           label={t('settings.signOut')}
           variant="secondary"
           icon={LogOut}
@@ -172,6 +237,8 @@ export default function SettingsScreen() {
         />
         {accountError ? <FormMessage message={accountError} /> : null}
       </SettingsSection>
+
+      <OptionsSheet config={sheet} onClose={() => setSheet(null)} />
     </Screen>
   );
 }

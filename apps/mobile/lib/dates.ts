@@ -4,6 +4,12 @@ const locale = 'es-ES';
 
 const capitalize = (text: string) => text.charAt(0).toLocaleUpperCase(locale) + text.slice(1);
 
+/** "2026-11-04", local day, for file names. */
+export function formatFileDate(date: Date): string {
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
 /** "4 nov" */
 export function formatDayMonth(date: Date): string {
   return date.toLocaleDateString(locale, { day: 'numeric', month: 'short' }).replace('.', '');
