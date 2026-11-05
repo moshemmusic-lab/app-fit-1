@@ -1,5 +1,6 @@
 import type { TrackingType } from '@app-fit/shared/exercises';
 import { withWorkoutBests, type ExerciseSession, type RecordBests } from '@app-fit/shared/progress';
+import { toContentVisibility } from '@app-fit/shared/social';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
@@ -72,7 +73,7 @@ async function fetchWorkout(workoutId: string): Promise<WorkoutDetail | null> {
   const { data, error } = await supabase
     .from('workouts')
     .select(
-      `id, title, notes, started_at, ended_at, deleted_at, workout_exercises (id, exercise_id, position, notes, workout_sets (${SET_COLUMNS})), personal_records (workout_set_id, record_type, previous_value)`,
+      `id, title, notes, visibility, started_at, ended_at, deleted_at, workout_exercises (id, exercise_id, position, notes, workout_sets (${SET_COLUMNS})), personal_records (workout_set_id, record_type, previous_value)`,
     )
     .eq('id', workoutId)
     .maybeSingle();
@@ -85,6 +86,7 @@ async function fetchWorkout(workoutId: string): Promise<WorkoutDetail | null> {
     startedAt: data.started_at,
     endedAt: data.ended_at,
     pending: false,
+    visibility: toContentVisibility(data.visibility),
     exercises: [...data.workout_exercises].sort(byPosition).map((exercise) => ({
       id: exercise.id,
       exerciseId: exercise.exercise_id,
@@ -107,12 +109,12 @@ async function fetchWorkout(workoutId: string): Promise<WorkoutDetail | null> {
 }
 
 /** A finished workout: from the phone while it waits to upload, else from the server. */
-export function useWorkoutDetail(userId: string, workoutId: string) {
+export function useWorkoutDetail(userId: string, workoutId: string, enabled = true) {
   const pendingEntry = usePendingWorkouts(userId).find((entry) => entry.id === workoutId);
   const query = useQuery({
     queryKey: progressKeys.workout(userId, workoutId),
     queryFn: () => fetchWorkout(workoutId),
-    enabled: !pendingEntry,
+    enabled: enabled && !pendingEntry,
   });
   const local = useMemo(
     () => (pendingEntry ? pendingToDetail(pendingEntry) : null),

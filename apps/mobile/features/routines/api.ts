@@ -24,7 +24,7 @@ async function fetchRoutineLibrary(): Promise<RoutineLibrary> {
     supabase
       .from('routines')
       .select(
-        'id, folder_id, name, notes, routine_exercises (id, exercise_id, position, rest_seconds, notes, routine_sets (id, position, set_type, target_reps, target_weight_kg, target_duration_s, target_distance_m))',
+        'id, folder_id, name, notes, visibility, routine_exercises (id, exercise_id, position, rest_seconds, notes, routine_sets (id, position, set_type, target_reps, target_weight_kg, target_duration_s, target_distance_m))',
       )
       .is('deleted_at', null),
   ]);
@@ -39,6 +39,7 @@ async function fetchRoutineLibrary(): Promise<RoutineLibrary> {
         folderId: row.folder_id,
         name: row.name,
         notes: row.notes,
+        shared: row.visibility !== 'private',
         exercises: [...row.routine_exercises].sort(byPosition).map((exercise) => ({
           id: exercise.id,
           exerciseId: exercise.exercise_id,

@@ -11,13 +11,21 @@ const SHOWN_EXERCISES = 3;
 
 interface RoutineCardProps {
   name: string;
+  /** Shared on the profile: shows a "Compartida" tag. */
+  shared?: boolean;
   /** Names of its exercises, in order. */
   exerciseNames: readonly string[];
   onStart: () => void;
   onOptions: () => void;
 }
 
-export function RoutineCard({ name, exerciseNames, onStart, onOptions }: RoutineCardProps) {
+export function RoutineCard({
+  name,
+  shared = false,
+  exerciseNames,
+  onStart,
+  onOptions,
+}: RoutineCardProps) {
   const { t } = useTranslation();
   const { colors, radius, spacing } = useTheme();
   const hidden = exerciseNames.length - SHOWN_EXERCISES;
@@ -36,7 +44,23 @@ export function RoutineCard({ name, exerciseNames, onStart, onOptions }: Routine
     >
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2] }}>
         <View style={{ flex: 1, gap: spacing[1] }}>
-          <Text variant="bodyStrong">{name}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing[2] }}>
+            <Text variant="bodyStrong" style={{ flexShrink: 1 }}>
+              {name}
+            </Text>
+            {shared ? (
+              <View
+                style={{
+                  paddingHorizontal: spacing[2],
+                  paddingVertical: 2,
+                  borderRadius: radius.md,
+                  backgroundColor: colors.surface2,
+                }}
+              >
+                <Text variant="caption">{t('routines.shared')}</Text>
+              </View>
+            ) : null}
+          </View>
           <Text variant="caption" color="textMuted" numberOfLines={2}>
             {exerciseNames.length > 0 ? summary : t('routines.exerciseCount', { count: 0 })}
           </Text>
