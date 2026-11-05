@@ -1,4 +1,5 @@
 export * from './exercises';
+export * from './export';
 export * from './i18n';
 export * from './progress';
 export * from './schemas';

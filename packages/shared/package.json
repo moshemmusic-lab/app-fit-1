@@ -12,7 +12,8 @@
     "./exercises": "./src/exercises/index.ts",
     "./workouts": "./src/workouts/index.ts",
     "./progress": "./src/progress/index.ts",
-    "./social": "./src/social/index.ts"
+    "./social": "./src/social/index.ts",
+    "./export": "./src/export/index.ts"
   },
   "scripts": {
     "tokens": "node scripts/generate-tokens.ts",
