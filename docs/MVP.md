@@ -43,7 +43,7 @@ Las fechas suponen una dedicación semanal alta; se ajustan a las horas reales d
 - [x] Onboarding: objetivo (fuerza, cardio o ambos), nivel, kg/lb y consentimiento de datos de salud.
 - [x] Perfil con foto, nombre, bio y estadísticas básicas; perfil público o privado. *Las cifras reales llegan con los pasos 4 y 7.*
 - [x] Ajustes: unidades, privacidad por defecto de los entrenos y notificaciones.
-- [ ] Exportar mis datos y borrar mi cuenta. *Borrar cuenta, hecho (paso 2); exportar, tras el paso 6.*
+- [x] Exportar mis datos y borrar mi cuenta. *Borrar cuenta, hecho (paso 2). Exportar, hecho (paso 9a): en Ajustes, todos los datos en JSON o los entrenos en CSV para hojas de cálculo.*
 
 ### 4.2 Registro de entrenos (fase 1)
 - [ ] Empezar un entreno vacío, desde una rutina o desde la sesión de hoy de un programa. *Vacío y desde una rutina, hechos (pasos 4 y 5); desde un programa en el paso 11.*
@@ -162,6 +162,14 @@ Cada paso es una funcionalidad completa de punta a punta (base de datos → lóg
 7. Seguir, feed, me gusta, comentarios, visibilidad y denuncias. *Hecho (también buscar, bloquear y copiar rutinas compartidas; probado en simulador con dos cuentas el 05/11/2026). Fuera: avisos en el móvil (antes de la beta, paso 9) y listas de seguidores y seguidos.*
 8. Compartir en stories. *Hecho (desde el resumen y desde el «…» de tus entrenos; probado en simulador el 05/11/2026: compartir, guardar en Fotos y fondo con foto). Fuera: botón directo a Instagram Stories (necesita development build, paso 9).*
 9. **Beta cerrada** (TestFlight y prueba interna de Google Play) → medir activación y retención. Antes: inicio de sesión con Google (necesita development build) y «Exportar mis datos» (decidido el 02/11/2026: se hace cuando ya hay entrenos e historial que exportar, tras el paso 6).
+   - *Partes acordadas el 05/11/2026, un PR cada una:*
+     - *9a. Exportar mis datos. Hecho (probado en simulador el 05/11/2026).*
+     - *9b. Development build y servidor de pruebas (staging) en Supabase, región UE.*
+     - *9c. Inicio de sesión con Google.*
+     - *9d. Avisos en el móvil de la actividad social.*
+     - *9e. Medir activación y retención con los datos de Supabase, y errores con Sentry.*
+     - *9f. Subir la beta a TestFlight y a la prueba interna de Google Play.*
+   - *Aplazado: botón directo a Instagram Stories (Meta exige una app en su portal; «Compartir» ya incluye Instagram). Pendiente de decidir: fotos y vídeos de los ejercicios.*
 10. Modelo de programas (versiones, sesiones, prescripciones, entitlements) + panel mínimo de creador.
 11. Programas en la app: «Mis programas», fecha de inicio, «Hoy toca», progreso frente al plan → programas piloto gratuitos.
 12. Feed y ranking de la cohorte.

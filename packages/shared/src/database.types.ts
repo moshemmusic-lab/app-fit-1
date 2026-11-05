@@ -879,6 +879,7 @@ export type Database = {
       delete_comment: { Args: { p_comment_id: string }; Returns: undefined };
       delete_workout: { Args: { p_workout_id: string }; Returns: undefined };
       exercise_name: { Args: { p_exercise_id: string; p_locale: string }; Returns: string };
+      export_my_data: { Args: Record<PropertyKey, never>; Returns: Json };
       follow_user: {
         Args: { p_user_id: string };
         Returns: Database['public']['Enums']['follow_status'];
