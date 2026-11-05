@@ -126,3 +126,41 @@ export function topSet<T extends HistorySet>(
   }
   return sets.find((set) => set.setType !== 'warmup') ?? sets[0];
 }
+
+/** A finished workout reduced to what "Recientes" needs: when, and its exercises in order. */
+export interface RecentWorkout {
+  id: string;
+  startedAt: string;
+  exerciseIds: string[];
+}
+
+/**
+ * The exercises used most recently, newest first and without repeats: from the server's
+ * latest workouts plus the ones still on the phone.
+ */
+export function recentExerciseIds(
+  server: readonly RecentWorkout[],
+  pending: readonly PendingWorkout[],
+  limit: number,
+): string[] {
+  const onServer = new Set(server.map((workout) => workout.id));
+  const local: RecentWorkout[] = pending
+    .filter((entry) => !onServer.has(entry.id))
+    .map((entry) => ({
+      id: entry.id,
+      startedAt: entry.payload.started_at,
+      exerciseIds: [...entry.payload.exercises]
+        .sort((a, b) => a.position - b.position)
+        .map((exercise) => exercise.exercise_id),
+    }));
+  const ids = new Set<string>();
+  for (const workout of [...server, ...local].sort((a, b) =>
+    b.startedAt.localeCompare(a.startedAt),
+  )) {
+    for (const id of workout.exerciseIds) {
+      if (ids.size >= limit) return [...ids];
+      ids.add(id);
+    }
+  }
+  return [...ids];
+}

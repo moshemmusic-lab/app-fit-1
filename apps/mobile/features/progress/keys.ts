@@ -8,4 +8,5 @@ export const progressKeys = {
   exercise: (userId: string, exerciseId: string) =>
     ['progress', userId, 'exercise', exerciseId] as const,
   bodyWeight: (userId: string) => ['progress', userId, 'body-weight'] as const,
+  recentExercises: (userId: string) => ['progress', userId, 'recent-exercises'] as const,
 };

@@ -30,7 +30,7 @@ export function RoutineCard({ name, exerciseNames, onStart, onOptions }: Routine
       style={{
         padding: spacing[4],
         gap: spacing[3],
-        borderRadius: radius.lg,
+        borderRadius: radius.md,
         backgroundColor: colors.surface,
       }}
     >
@@ -43,11 +43,10 @@ export function RoutineCard({ name, exerciseNames, onStart, onOptions }: Routine
         </View>
         <IconButton icon={MoreHorizontal} label={t('routines.options')} onPress={onOptions} />
       </View>
-      {/* Secondary: the lime main action of the screen is "Empezar entreno vacío". */}
+      {/* Lime: starting a routine is the main thing to do here ("Empezar entreno vacío" is a row). */}
       <Button
         label={t('routines.start')}
         accessibilityLabel={t('routines.startLabel', { name })}
-        variant="secondary"
         icon={Play}
         onPress={onStart}
       />

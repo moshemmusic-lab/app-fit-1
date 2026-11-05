@@ -17,6 +17,8 @@ interface ScreenProps {
   onBack?: () => void;
   /** Keeps the top bar's space even when it has no buttons, so multi-step screens don't jump. */
   keepTopBar?: boolean;
+  /** Replaces the top bar, e.g. with a ModalHeader ("Cancelar · title · Guardar"). */
+  topBar?: ReactNode;
   /** Main actions pinned to the bottom, within thumb reach (docs/DESIGN.md). */
   footer?: ReactNode;
   /** Screens outside the tab bar need the bottom safe area. */
@@ -36,6 +38,7 @@ export function Screen({
   headerRight,
   onBack,
   keepTopBar = false,
+  topBar,
   footer,
   withBottomInset = false,
   scroll = true,
@@ -54,7 +57,8 @@ export function Screen({
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {showTopBar ? (
+        {topBar ?? null}
+        {!topBar && showTopBar ? (
           <View
             style={{
               minHeight: sizes.touchMin,

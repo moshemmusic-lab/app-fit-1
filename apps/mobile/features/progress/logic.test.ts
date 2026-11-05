@@ -9,6 +9,7 @@ import {
   mergeTrainingLog,
   pendingToDetail,
   pendingToEntry,
+  recentExerciseIds,
   topSet,
 } from './logic';
 import type { HistorySet, TrainingEntry } from './types';
@@ -168,5 +169,31 @@ describe('records and sessions', () => {
     expect(topSet(sets, 'weight_reps')?.id).toBe('a');
     expect(topSet(sets, 'calories_duration')?.id).toBe('a');
     expect(topSet([], 'weight_reps')).toBeUndefined();
+  });
+});
+
+describe('recent exercises', () => {
+  it('lists the latest exercises first, without repeats, up to the limit', () => {
+    const server = [
+      { id: 'w1', startedAt: '2026-11-01T10:00:00Z', exerciseIds: ['bench', 'row', 'curl'] },
+      { id: 'w2', startedAt: '2026-11-03T10:00:00Z', exerciseIds: ['row', 'press'] },
+    ];
+    // Still on the phone, and newer than both: its squat and pull-up go first.
+    expect(recentExerciseIds(server, [pending('p1', '2026-11-04T10:00:00Z')], 10)).toEqual([
+      'squat',
+      'pullup',
+      'row',
+      'press',
+      'bench',
+      'curl',
+    ]);
+    expect(recentExerciseIds(server, [], 3)).toEqual(['row', 'press', 'bench']);
+  });
+
+  it('counts a workout once while it is both queued and on the server', () => {
+    const server = [{ id: 'p1', startedAt: '2026-11-04T10:00:00Z', exerciseIds: ['squat'] }];
+    expect(recentExerciseIds(server, [pending('p1', '2026-11-04T10:00:00Z')], 10)).toEqual([
+      'squat',
+    ]);
   });
 });

@@ -6,12 +6,13 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowDown, ArrowLeftRight, ArrowUp, NotebookPen, Plus, Trash2 } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, View } from 'react-native';
+import { Alert, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
 import { ChipGroup } from '@/components/ui/ChipGroup';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormMessage } from '@/components/ui/FormMessage';
+import { ModalHeader } from '@/components/ui/ModalHeader';
 import { OptionsSheet, type OptionsSheetConfig } from '@/components/ui/OptionsSheet';
 import { Screen } from '@/components/ui/Screen';
 import { LoadingState } from '@/components/ui/StateViews';
@@ -20,6 +21,7 @@ import { TextField } from '@/components/ui/TextField';
 import { useSettings } from '@/features/account/api';
 import { useUserId } from '@/features/auth/session';
 import { useExerciseLibrary } from '@/features/exercises/api';
+import { NoExercisesYet } from '@/features/exercises/components/NoExercisesYet';
 import { useRoutineLibrary, useSaveRoutine } from '@/features/routines/api';
 import { RoutineExerciseEditor } from '@/features/routines/components/RoutineExerciseEditor';
 import { useRoutineDraftStore } from '@/features/routines/routine-draft-store';
@@ -28,6 +30,7 @@ import { restPresetsS } from '@/features/workouts/rest';
 import type { WorkoutSetType } from '@/features/workouts/types';
 import { classifyError } from '@/lib/errors';
 import { useErrorMessage } from '@/lib/use-error-message';
+import { fontNameForVariant } from '@/theme/font-names';
 import { useTheme } from '@/theme/ThemeProvider';
 
 const setTypes: readonly WorkoutSetType[] = ['warmup', 'normal', 'drop', 'failure'];
@@ -80,7 +83,7 @@ export default function RoutineEditorScreen() {
 
 function RoutineEditor({ isNew }: { isNew: boolean }) {
   const { t } = useTranslation();
-  const { spacing } = useTheme();
+  const { colors, spacing, typography } = useTheme();
   const getErrorMessage = useErrorMessage();
   const userId = useUserId();
   const unit = useSettings(userId).data?.units ?? 'kg';
@@ -99,6 +102,10 @@ function RoutineEditor({ isNew }: { isNew: boolean }) {
 
   const exercisesById = new Map((exercises.data ?? []).map((exercise) => [exercise.id, exercise]));
   const nameError = validationErrorOf(routineNameSchema, draft.name);
+  // "Guardar" lights up once there is something to save: a name and at least one exercise.
+  const canSave = draft.name.trim() !== '' && draft.exercises.length > 0;
+  const pickExercises = () =>
+    router.push({ pathname: '/exercises/pick', params: { for: 'routine' } });
 
   const leave = () => {
     store().clear();
@@ -188,42 +195,43 @@ function RoutineEditor({ isNew }: { isNew: boolean }) {
   return (
     <Screen
       withBottomInset
-      onBack={close}
-      title={isNew ? t('routines.editor.newTitle') : t('routines.editor.editTitle')}
-      footer={
-        <View style={{ gap: spacing[2] }}>
-          {formError ? <FormMessage message={formError} /> : null}
-          <View style={{ flexDirection: 'row', gap: spacing[2] }}>
-            <View style={{ flex: 1 }}>
-              <Button
-                label={t('routines.editor.addExercise')}
-                variant="secondary"
-                tall
-                icon={Plus}
-                onPress={() =>
-                  router.push({ pathname: '/exercises/pick', params: { for: 'routine' } })
-                }
-              />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Button
-                label={t('routines.editor.save')}
-                loading={saveRoutine.isPending}
-                onPress={save}
-              />
-            </View>
-          </View>
-        </View>
+      topBar={
+        <ModalHeader
+          title={isNew ? t('routines.editor.newTitle') : t('routines.editor.editTitle')}
+          cancelLabel={t('common.cancel')}
+          onCancel={close}
+          action={{
+            label: t('common.save'),
+            onPress: save,
+            disabled: !canSave,
+            loading: saveRoutine.isPending,
+          }}
+        />
       }
     >
-      <TextField
-        label={t('routines.editor.nameLabel')}
-        placeholder={t('routines.editor.namePlaceholder')}
-        value={draft.name}
-        onChangeText={(name) => store().update({ name })}
-        error={showErrors && nameError ? t(`validation.${nameError}`) : null}
-        maxLength={accountLimits.routineNameMax}
-      />
+      <View style={{ gap: spacing[2] }}>
+        <TextInput
+          accessibilityLabel={t('routines.editor.nameLabel')}
+          placeholder={t('routines.editor.namePlaceholder')}
+          placeholderTextColor={colors.textMuted}
+          value={draft.name}
+          onChangeText={(name) => store().update({ name })}
+          maxLength={accountLimits.routineNameMax}
+          returnKeyType="done"
+          selectionColor={colors.accentText}
+          cursorColor={colors.accentText}
+          style={{
+            paddingVertical: spacing[2],
+            color: colors.text,
+            fontFamily: fontNameForVariant('heading'),
+            fontSize: typography.heading.fontSize,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.line,
+          }}
+        />
+        {showErrors && nameError ? <FormMessage message={t(`validation.${nameError}`)} /> : null}
+        {formError ? <FormMessage message={formError} /> : null}
+      </View>
 
       {folders.length > 0 ? (
         <View style={{ gap: spacing[2] }}>
@@ -243,9 +251,10 @@ function RoutineEditor({ isNew }: { isNew: boolean }) {
       ) : null}
 
       {draft.exercises.length === 0 ? (
-        <EmptyState
-          title={t('routines.editor.noExercisesTitle')}
-          body={t('routines.editor.noExercisesBody')}
+        <NoExercisesYet
+          message={t('routines.editor.noExercises')}
+          actionLabel={t('routines.editor.addExercise')}
+          onAdd={pickExercises}
         />
       ) : !exercises.data ? (
         <LoadingState />
@@ -303,6 +312,16 @@ function RoutineEditor({ isNew }: { isNew: boolean }) {
           );
         })
       )}
+
+      {draft.exercises.length > 0 ? (
+        <Button
+          label={t('routines.editor.addExercise')}
+          variant="secondary"
+          tall
+          icon={Plus}
+          onPress={pickExercises}
+        />
+      ) : null}
 
       <TextField
         label={t('routines.editor.notesLabel')}
