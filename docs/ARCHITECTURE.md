@@ -1,7 +1,7 @@
 # ARCHITECTURE.md — App Fit 1
 
 > **Cómo está construida la aplicación por dentro.** Tecnologías, base de datos, usuarios, pagos y cómo se conectan las piezas.
-> Última actualización: 04/11/2026. Documentos relacionados: [PRODUCT.md](./PRODUCT.md) y [MVP.md](./MVP.md).
+> Última actualización: 05/11/2026. Documentos relacionados: [PRODUCT.md](./PRODUCT.md) y [MVP.md](./MVP.md).
 
 ---
 
@@ -106,9 +106,27 @@ Convenciones: claves `uuid`; `created_at` / `updated_at` en todo; borrado lógic
 | --- | --- | --- |
 | `profiles` | Perfil público de cada usuario (1:1 con `auth.users`); lo ve cualquier usuario con sesión | username, display_name, avatar_path, bio, is_private, role |
 | `user_settings` | Preferencias y consentimientos privados (1:1 con `auth.users`); solo los ve su dueño | units (kg/lb), locale, training_goal, experience_level, default_workout_visibility, notify_social, notify_reminders, health_data_consent_at, onboarding_completed_at |
-| `follows` | Quién sigue a quién | follower_id, following_id, status (pending/accepted para perfiles privados) |
-| `likes`, `comments` | Interacción con entrenos compartidos | user_id, workout_id, body |
-| `reports` | Denuncias de contenido | reporter_id, target_type, target_id, reason, status |
+| `follows` | Quién sigue a quién | follower_id, following_id, status (pending/accepted para perfiles privados), accepted_at |
+| `blocks` | Personas bloqueadas: ninguna ve a la otra (obligatorio en la App Store, guía 1.2) | blocker_id, blocked_id |
+| `likes`, `comments` | Interacción con entrenos compartidos | user_id, workout_id, body (máx. 500) |
+| `reports` | Denuncias de entrenos, comentarios y usuarios; se revisan en Supabase hasta el panel de moderación (paso 16) | reporter_id, target_type, target_id, target_user_id, reason, details, status |
+
+**Social (paso 7).**
+- **Quién ve qué, en un solo sitio:** `can_view_content(lector, dueño, visibilidad)`.
+  - Privado: solo el dueño.
+  - Seguidores: también los seguidores aceptados.
+  - Público: cualquiera con sesión, salvo que el perfil sea privado (entonces solo los seguidores).
+  - Bloquear oculta a las dos personas entre sí.
+- Las tablas de entrenos y rutinas siguen siendo legibles solo por su dueño, así las consultas propias de la app no cambian. Lo compartido se lee con funciones `security definer` que aplican esa regla y dan los nombres de los ejercicios, también los personalizados del dueño: `get_feed`, `get_workout_detail`, `get_workout_social`, `get_comments`, `get_profile`, `search_users` y `get_user_routines`.
+- **Todo se escribe con funciones:**
+  - seguir y responder solicitudes: `follow_user`, `unfollow_user`, `respond_to_follow_request`, `remove_follower`;
+  - bloquear: `block_user`, `unblock_user`;
+  - interactuar: `set_workout_like`, `add_comment`, `delete_comment`;
+  - visibilidad: `set_workout_visibility`, `set_routine_visibility`;
+  - denunciar y copiar: `report_content`, `copy_routine`.
+- Las tablas solo dejan leer las filas propias (RLS).
+- Seguir a un perfil privado crea una solicitud. Al hacer público el perfil, se aceptan las que esperaban. Bloquear corta los seguimientos en los dos sentidos.
+- Un comentario lo pueden borrar su autor y el dueño del entreno. Los comentarios de personas bloqueadas no se muestran.
 
 ### 5.2 Ejercicios
 | Tabla | Para qué | Campos clave |
@@ -135,7 +153,7 @@ El `tracking_type` decide qué campos de la serie se usan. Así el mismo modelo 
 | `routine_exercises` | Ejercicios de la rutina | routine_id, exercise_id, position, superset_group, rest_seconds |
 | `routine_sets` | Series objetivo | routine_exercise_id, position, set_type, target_reps, target_weight_kg, target_duration_s, target_distance_m |
 
-- Existen desde el paso 5. Las rutinas nuevas son privadas (`visibility = 'private'`); compartirlas y copiarlas (`copied_from_routine_id`) llega en el paso 7.
+- Existen desde el paso 5. Las rutinas nuevas son privadas (`visibility = 'private'`). Desde el paso 7 se pueden compartir en el perfil (`set_routine_visibility`) y otros las copian con `copy_routine`, que guarda `copied_from_routine_id`. Si usa ejercicios personalizados del dueño, quien copia recibe su propia copia de cada uno (`exercises.copied_from_exercise_id`), que se reutiliza en copias posteriores.
 - **Una rutina se guarda entera con `save_routine(jsonb)`**, como los entrenos: sustituye sus ejercicios y series de una vez y comprueba que la carpeta y los ejercicios son del usuario. Moverla de carpeta, reordenarla y borrarla (borrado lógico con `deleted_at`) se hace directamente, limitado por privilegios por columna y RLS. Las carpetas las gestiona su dueño directamente.
 - Una rutina solo puede ir a una carpeta de su dueño (clave foránea compuesta). Al borrar una carpeta, sus rutinas se quedan sin carpeta.
 - `workouts.routine_id` recuerda la rutina con la que se empezó un entreno; si la rutina se borra, el entreno se conserva.
@@ -153,7 +171,7 @@ El `tracking_type` decide qué campos de la serie se usan. Así el mismo modelo 
 - `workouts`, `workout_exercises` y `workout_sets` existen desde el paso 4; `routine_id`, desde el paso 5. `enrollment_id`, `program_session_id` y `prescription_id` se añadirán con sus tablas (paso 10). `personal_records` y `body_measurements` existen desde el paso 6.
 - `workouts` lleva `deleted_at` (borrado lógico, contenido del usuario).
 - **La app no escribe estas tablas directamente:** envía el entreno terminado entero a la función `save_workout(jsonb)`, que sustituye lo guardado antes con ese id. Subir dos veces el mismo entreno deja una sola copia, y la función comprueba que el entreno es del usuario y que los ejercicios son globales o suyos.
-- Cada usuario solo lee sus entrenos; el paso 7 abrirá lo que comparta según `visibility`.
+- Cada usuario solo lee directamente sus entrenos. Desde el paso 7, lo que comparte según `visibility` lo leen otros a través de las funciones sociales (§5.1). La visibilidad se elige en el resumen y se puede cambiar después.
 - **Borrar un entreno del historial** es un borrado lógico con `delete_workout(id)`, que además recalcula los récords. Necesita conexión. Un entreno que aún no se ha subido no se puede borrar desde el historial (se perdería).
 
 **Récords (paso 6).** Los calcula la base de datos (`refresh_personal_records`, interna) cada vez que `save_workout()` o `delete_workout()` cambian un entreno, recalculando desde cero los ejercicios afectados. Reglas:
@@ -238,7 +256,7 @@ El `tracking_type` decide qué campos de la serie se usan. Así el mismo modelo 
 3. Para cambiarla, crea una versión nueva; los compradores anteriores conservan la suya.
 
 ### 6.7 Feed, cohortes y rankings
-- **Feed de inicio:** entrenos de la gente que sigues, según su visibilidad.
+- **Feed de inicio:** tus entrenos y los de la gente que sigues, según su visibilidad, del más reciente al más antiguo, de 20 en 20 (`get_feed`). Me gusta al instante en la pantalla (se confirma después) y comentarios en su propia pantalla. Avisos en el móvil: antes de la beta (paso 9), con una development build.
 - **Feed de la cohorte:** entrenos vinculados a un `enrollment` del mismo programa.
 - **Ranking semanal de la cohorte:** vista materializada que se recalcula periódicamente.
 
