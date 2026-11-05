@@ -1,11 +1,10 @@
 import { partOfDay } from '@app-fit/shared/workouts';
 import { router } from 'expo-router';
-import { BookOpen, CloudOff, Play } from 'lucide-react-native';
+import { CloudOff, Play, Plus } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
-import { EmptyState } from '@/components/ui/EmptyState';
 import { Screen } from '@/components/ui/Screen';
 import { Text } from '@/components/ui/Text';
 import { useSettings } from '@/features/account/api';
@@ -48,7 +47,7 @@ export default function WorkoutScreen() {
           style={{
             padding: spacing[4],
             gap: spacing[3],
-            borderRadius: radius.lg,
+            borderRadius: radius.md,
             backgroundColor: colors.surface,
           }}
         >
@@ -66,10 +65,14 @@ export default function WorkoutScreen() {
           />
         </View>
       ) : (
-        <>
-          <EmptyState title={t('workout.emptyTitle')} body={t('workout.emptyBody')} />
-          <Button label={t('workout.start')} icon={Play} onPress={startWorkout} />
-        </>
+        <Button
+          label={t('workout.start')}
+          variant="secondary"
+          tall
+          align="start"
+          icon={Plus}
+          onPress={startWorkout}
+        />
       )}
 
       {pending.length > 0 ? (
@@ -77,7 +80,7 @@ export default function WorkoutScreen() {
           style={{
             padding: spacing[4],
             gap: spacing[2],
-            borderRadius: radius.lg,
+            borderRadius: radius.md,
             backgroundColor: colors.surface,
           }}
         >
@@ -103,13 +106,6 @@ export default function WorkoutScreen() {
       ) : null}
 
       <RoutinesSection userId={userId} />
-
-      <Button
-        label={t('workout.openLibrary')}
-        variant="ghost"
-        icon={BookOpen}
-        onPress={() => router.push('/exercises')}
-      />
     </Screen>
   );
 }

@@ -102,7 +102,7 @@ export function WorkoutExerciseCard({
       style={{
         padding: spacing[3],
         gap: spacing[2],
-        borderRadius: radius.lg,
+        borderRadius: radius.md,
         backgroundColor: colors.surface,
       }}
     >

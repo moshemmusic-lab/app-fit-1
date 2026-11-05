@@ -35,6 +35,7 @@ import { TextField } from '@/components/ui/TextField';
 import { useSettings } from '@/features/account/api';
 import { useUserId } from '@/features/auth/session';
 import { useExerciseLibrary } from '@/features/exercises/api';
+import { NoExercisesYet } from '@/features/exercises/components/NoExercisesYet';
 import { useRecordBests } from '@/features/progress/api';
 import { ElapsedTime } from '@/features/workouts/components/ElapsedTime';
 import { RestTimerBar } from '@/features/workouts/components/RestTimerBar';
@@ -283,15 +284,18 @@ export default function ActiveWorkoutScreen() {
         <View style={{ gap: spacing[2] }}>
           <RestTimerBar />
           <View style={{ flexDirection: 'row', gap: spacing[2] }}>
-            <View style={{ flex: 1 }}>
-              <Button
-                label={t('activeWorkout.addExercise')}
-                variant="secondary"
-                tall
-                icon={Plus}
-                onPress={() => router.push('/exercises/pick')}
-              />
-            </View>
+            {/* With no exercises yet, the big button in the content adds the first one. */}
+            {workout.exercises.length > 0 ? (
+              <View style={{ flex: 1 }}>
+                <Button
+                  label={t('activeWorkout.addExercise')}
+                  variant="secondary"
+                  tall
+                  icon={Plus}
+                  onPress={() => router.push('/exercises/pick')}
+                />
+              </View>
+            ) : null}
             <View style={{ flex: 1 }}>
               <Button label={t('activeWorkout.finish')} onPress={finish} />
             </View>
@@ -300,7 +304,11 @@ export default function ActiveWorkoutScreen() {
       }
     >
       {workout.exercises.length === 0 ? (
-        <EmptyState title={t('activeWorkout.emptyTitle')} body={t('activeWorkout.emptyBody')} />
+        <NoExercisesYet
+          message={t('activeWorkout.noExercises')}
+          actionLabel={t('activeWorkout.addExercise')}
+          onAdd={() => router.push('/exercises/pick')}
+        />
       ) : !library.data ? (
         <LoadingState />
       ) : (

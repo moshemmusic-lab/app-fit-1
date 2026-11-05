@@ -69,7 +69,7 @@ function NamePromptContent({
         style={{
           padding: spacing[4],
           gap: spacing[4],
-          borderRadius: radius.xl,
+          borderRadius: radius.md,
           backgroundColor: colors.surface,
         }}
       >

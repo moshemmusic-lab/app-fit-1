@@ -36,7 +36,7 @@ export function ErrorState({ message, onRetry, retrying = false }: ErrorStatePro
       style={{
         padding: spacing[4],
         gap: spacing[3],
-        borderRadius: radius.lg,
+        borderRadius: radius.md,
         backgroundColor: colors.surface,
         alignItems: 'flex-start',
       }}

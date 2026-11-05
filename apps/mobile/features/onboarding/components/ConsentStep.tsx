@@ -31,7 +31,7 @@ export function ConsentStep({ consent, onChange }: ConsentStepProps) {
         style={{
           padding: spacing[4],
           gap: spacing[3],
-          borderRadius: radius.lg,
+          borderRadius: radius.md,
           backgroundColor: colors.surface,
         }}
       >

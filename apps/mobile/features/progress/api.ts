@@ -13,6 +13,8 @@ import {
   mergeExerciseSessions,
   mergeTrainingLog,
   pendingToDetail,
+  recentExerciseIds,
+  type RecentWorkout,
 } from './logic';
 import type { BodyWeightEntry, PersonalBest, TrainingEntry, WorkoutDetail } from './types';
 
@@ -247,6 +249,44 @@ export function useExerciseSessions(userId: string, exerciseId: string) {
     [query.data, pending, exerciseId],
   );
   return { query, sessions };
+}
+
+// ---------------------------------------------------------------------------
+// Recent exercises (top of the exercise picker)
+// ---------------------------------------------------------------------------
+
+// Enough workouts to fill "Recientes" with a typical week of training.
+const RECENT_WORKOUTS = 10;
+const RECENT_EXERCISES = 8;
+
+async function fetchRecentWorkouts(userId: string): Promise<RecentWorkout[]> {
+  const { data, error } = await supabase
+    .from('workouts')
+    .select('id, started_at, workout_exercises (exercise_id, position)')
+    // Only the user's own workouts, also once others' shared workouts become readable.
+    .eq('user_id', userId)
+    .is('deleted_at', null)
+    .order('started_at', { ascending: false })
+    .limit(RECENT_WORKOUTS);
+  if (error) throw error;
+  return data.map((row) => ({
+    id: row.id,
+    startedAt: row.started_at,
+    exerciseIds: [...row.workout_exercises].sort(byPosition).map((entry) => entry.exercise_id),
+  }));
+}
+
+/** The exercises used lately, newest first (also offline, from the cache and the queue). */
+export function useRecentExerciseIds(userId: string): string[] {
+  const query = useQuery({
+    queryKey: progressKeys.recentExercises(userId),
+    queryFn: () => fetchRecentWorkouts(userId),
+  });
+  const pending = usePendingWorkouts(userId);
+  return useMemo(
+    () => recentExerciseIds(query.data ?? [], pending, RECENT_EXERCISES),
+    [query.data, pending],
+  );
 }
 
 // ---------------------------------------------------------------------------

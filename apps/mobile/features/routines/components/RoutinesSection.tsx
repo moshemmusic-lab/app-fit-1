@@ -3,18 +3,20 @@ import { onlineManager } from '@tanstack/react-query';
 import * as Crypto from 'expo-crypto';
 import { router } from 'expo-router';
 import {
+  ChevronDown,
+  ChevronRight,
+  ClipboardList,
   Copy,
-  Folder,
+  Dumbbell,
   FolderInput,
   FolderPlus,
   MoreHorizontal,
   Pencil,
-  Plus,
   Trash2,
 } from 'lucide-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, View } from 'react-native';
+import { Alert, Pressable, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -45,10 +47,55 @@ import { RoutineCard } from './RoutineCard';
 
 type FolderPrompt = { mode: 'create' } | { mode: 'rename'; folder: RoutineFolder };
 
+// Collapse key of the routines outside any folder.
+const UNFILED = 'unfiled';
+
+interface GroupHeaderProps {
+  name: string;
+  count: number;
+  expanded: boolean;
+  onToggle: () => void;
+  onOptions?: () => void;
+}
+
+/** A folder's header: tap to fold or unfold its routines; "…" for its options. */
+function GroupHeader({ name, count, expanded, onToggle, onOptions }: GroupHeaderProps) {
+  const { t } = useTranslation();
+  const { colors, sizes, spacing } = useTheme();
+  const Chevron = expanded ? ChevronDown : ChevronRight;
+
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing[2] }}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ expanded }}
+        accessibilityLabel={`${name}, ${t('routines.routineCount', { count })}`}
+        onPress={onToggle}
+        style={({ pressed }) => ({
+          flex: 1,
+          minHeight: sizes.touchMin,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: spacing[2],
+          opacity: pressed ? 0.6 : 1,
+        })}
+      >
+        <Chevron size={sizes.icon * 0.75} strokeWidth={1.8} color={colors.textMuted} />
+        <Text variant="bodyStrong" color="textMuted" numberOfLines={1} style={{ flexShrink: 1 }}>
+          {t('routines.groupTitle', { name, count })}
+        </Text>
+      </Pressable>
+      {onOptions ? (
+        <IconButton icon={MoreHorizontal} label={t('routines.folderOptions')} onPress={onOptions} />
+      ) : null}
+    </View>
+  );
+}
+
 /** The user's routines on the Entrenar tab, grouped by folder. */
 export function RoutinesSection({ userId }: { userId: string }) {
   const { t } = useTranslation();
-  const { colors, sizes, spacing } = useTheme();
+  const { spacing } = useTheme();
   const getErrorMessage = useErrorMessage();
   const library = useRoutineLibrary(userId);
   const exercises = useExerciseLibrary();
@@ -65,6 +112,15 @@ export function RoutinesSection({ userId }: { userId: string }) {
 
   const [sheet, setSheet] = useState<OptionsSheetConfig | null>(null);
   const [folderPrompt, setFolderPrompt] = useState<FolderPrompt | null>(null);
+  const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
+
+  const toggleGroup = (key: string) =>
+    setCollapsed((current) => {
+      const next = new Set(current);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
 
   // Changing routines needs a connection; say so clearly instead of a generic error.
   const showError = (error: unknown) =>
@@ -228,24 +284,33 @@ export function RoutinesSection({ userId }: { userId: string }) {
 
   return (
     <View style={{ gap: spacing[4] }}>
-      <Text variant="heading" accessibilityRole="header">
-        {t('routines.sectionTitle')}
-      </Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing[2] }}>
+        <Text variant="heading" accessibilityRole="header" style={{ flex: 1 }}>
+          {t('routines.sectionTitle')}
+        </Text>
+        <IconButton
+          icon={FolderPlus}
+          label={t('routines.newFolder')}
+          onPress={() => setFolderPrompt({ mode: 'create' })}
+        />
+      </View>
       <View style={{ flexDirection: 'row', gap: spacing[2] }}>
         <View style={{ flex: 1 }}>
           <Button
             label={t('routines.newRoutine')}
             variant="secondary"
-            icon={Plus}
+            align="start"
+            icon={ClipboardList}
             onPress={() => router.push('/routine-editor')}
           />
         </View>
         <View style={{ flex: 1 }}>
           <Button
-            label={t('routines.newFolder')}
+            label={t('routines.exerciseLibrary')}
             variant="secondary"
-            icon={FolderPlus}
-            onPress={() => setFolderPrompt({ mode: 'create' })}
+            align="start"
+            icon={Dumbbell}
+            onPress={() => router.push('/exercises')}
           />
         </View>
       </View>
@@ -254,33 +319,19 @@ export function RoutinesSection({ userId }: { userId: string }) {
         <EmptyState title={t('routines.emptyTitle')} body={t('routines.emptyBody')} />
       ) : null}
 
-      {unfiled.length > 0 ? (
-        <View style={{ gap: spacing[2] }}>
-          {folders.length > 0 ? (
-            <Text variant="label" color="textMuted">
-              {t('routines.noFolder')}
-            </Text>
-          ) : null}
-          {renderRoutines(unfiled)}
-        </View>
-      ) : null}
-
       {folders.map((folder) => {
         const inFolder = routines.filter((routine) => routine.folderId === folder.id);
+        const expanded = !collapsed.has(folder.id);
         return (
           <View key={folder.id} style={{ gap: spacing[2] }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing[2] }}>
-              <Folder size={sizes.icon * 0.75} strokeWidth={1.8} color={colors.textMuted} />
-              <Text variant="label" color="textMuted" style={{ flex: 1 }}>
-                {folder.name}
-              </Text>
-              <IconButton
-                icon={MoreHorizontal}
-                label={t('routines.folderOptions')}
-                onPress={() => openFolderOptions(folder)}
-              />
-            </View>
-            {inFolder.length > 0 ? (
+            <GroupHeader
+              name={folder.name}
+              count={inFolder.length}
+              expanded={expanded}
+              onToggle={() => toggleGroup(folder.id)}
+              onOptions={() => openFolderOptions(folder)}
+            />
+            {!expanded ? null : inFolder.length > 0 ? (
               renderRoutines(inFolder)
             ) : (
               <Text variant="caption" color="textMuted">
@@ -290,6 +341,20 @@ export function RoutinesSection({ userId }: { userId: string }) {
           </View>
         );
       })}
+
+      {unfiled.length > 0 ? (
+        <View style={{ gap: spacing[2] }}>
+          {folders.length > 0 ? (
+            <GroupHeader
+              name={t('routines.noFolder')}
+              count={unfiled.length}
+              expanded={!collapsed.has(UNFILED)}
+              onToggle={() => toggleGroup(UNFILED)}
+            />
+          ) : null}
+          {folders.length === 0 || !collapsed.has(UNFILED) ? renderRoutines(unfiled) : null}
+        </View>
+      ) : null}
 
       <OptionsSheet config={sheet} onClose={() => setSheet(null)} />
       <NamePromptModal

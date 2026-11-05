@@ -158,6 +158,7 @@ Cada paso es una funcionalidad completa de punta a punta (base de datos → lóg
 4. **Registrar un entreno** sin conexión + sincronización. *Hecho (probado en simulador el 03/11/2026).*
 5. Rutinas y carpetas. *Hecho (rutinas, carpetas y ejercicios personalizados; probado en simulador el 04/11/2026).*
 6. Historial, PRs y gráficas de progreso. *Hecho (historial, constancia, récords, gráficas y peso corporal; probado en simulador el 04/11/2026). Fuera: editar entreno terminado, límite de gráficas del plan gratuito (paso 14).*
+   - *Mejora antes del paso 7 (05/11/2026): Entrenar, crear rutina y añadir ejercicios rehechos con el flujo de Hevy (barra «Cancelar · Guardar», filtros en hojas, «Recientes», botón (i)) y una sola forma para todos los marcos. Las fotos de los ejercicios siguen pendientes (4.2).*
 7. Seguir, feed, me gusta, comentarios, visibilidad y denuncias.
 8. Compartir en stories.
 9. **Beta cerrada** (TestFlight y prueba interna de Google Play) → medir activación y retención. Antes: inicio de sesión con Google (necesita development build) y «Exportar mis datos» (decidido el 02/11/2026: se hace cuando ya hay entrenos e historial que exportar, tras el paso 6).

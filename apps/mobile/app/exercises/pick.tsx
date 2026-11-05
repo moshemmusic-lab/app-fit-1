@@ -3,9 +3,12 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/Button';
+import { ModalHeader } from '@/components/ui/ModalHeader';
 import { Screen } from '@/components/ui/Screen';
+import { useUserId } from '@/features/auth/session';
 import type { LibraryExercise } from '@/features/exercises/api';
 import { ExerciseLibraryView } from '@/features/exercises/components/ExerciseLibraryView';
+import { useRecentExerciseIds } from '@/features/progress/api';
 import { useRoutineDraftStore } from '@/features/routines/routine-draft-store';
 import { useWorkoutStore, type PickedExercise } from '@/features/workouts/workout-store';
 
@@ -17,6 +20,9 @@ const toPicked = ({ id, trackingType }: LibraryExercise): PickedExercise => ({
 // Back here, the new exercise shows up under the same search, ready to tap.
 const createExercise = (name: string) =>
   router.push({ pathname: '/exercises/edit', params: { name } });
+
+const openExercise = ({ id }: LibraryExercise) =>
+  router.push({ pathname: '/exercises/[id]', params: { id } });
 
 /**
  * Choose exercises for the workout in progress, or for the routine being edited with
@@ -34,20 +40,32 @@ export default function PickExercisesScreen() {
   const addExercises = forRoutine ? routineAdd : workoutAdd;
   const replaceExercise = forRoutine ? routineReplace : workoutReplace;
   const [selected, setSelected] = useState<PickedExercise[]>([]);
+  const userId = useUserId();
+  const recentIds = useRecentExerciseIds(userId);
+
+  const header = (title: string) => (
+    <ModalHeader
+      title={title}
+      cancelLabel={t('common.cancel')}
+      onCancel={() => router.back()}
+      action={{
+        label: t('exercises.createShort'),
+        variant: 'ghost',
+        onPress: () => createExercise(''),
+      }}
+    />
+  );
 
   if (replace) {
     return (
-      <Screen
-        title={t('exercises.replaceTitle')}
-        onBack={() => router.back()}
-        withBottomInset
-        scroll={false}
-      >
+      <Screen topBar={header(t('exercises.replaceTitle'))} withBottomInset scroll={false}>
         <ExerciseLibraryView
+          recentIds={recentIds}
           onPressExercise={(exercise) => {
             replaceExercise(replace, toPicked(exercise));
             router.back();
           }}
+          onInfoExercise={openExercise}
           onCreateExercise={createExercise}
         />
       </Screen>
@@ -63,28 +81,27 @@ export default function PickExercisesScreen() {
 
   return (
     <Screen
-      title={t('exercises.pickTitle')}
-      onBack={() => router.back()}
+      topBar={header(t('exercises.pickTitle'))}
       withBottomInset
       scroll={false}
       footer={
-        <Button
-          label={
-            selected.length > 0
-              ? t('exercises.addSelected', { count: selected.length })
-              : t('exercises.pickTitle')
-          }
-          disabled={selected.length === 0}
-          onPress={() => {
-            addExercises(selected);
-            router.back();
-          }}
-        />
+        // Shows up once something is selected, with how many will be added.
+        selected.length > 0 ? (
+          <Button
+            label={t('exercises.addSelected', { count: selected.length })}
+            onPress={() => {
+              addExercises(selected);
+              router.back();
+            }}
+          />
+        ) : undefined
       }
     >
       <ExerciseLibraryView
+        recentIds={recentIds}
         selectedIds={new Set(selected.map((picked) => picked.exerciseId))}
         onPressExercise={toggle}
+        onInfoExercise={openExercise}
         onCreateExercise={createExercise}
       />
     </Screen>

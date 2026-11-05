@@ -13,6 +13,10 @@ interface ButtonProps extends Omit<PressableProps, 'children' | 'style'> {
   icon?: LucideIcon;
   /** Primary height for a secondary or ghost button placed next to a primary one. */
   tall?: boolean;
+  /** Small button for a top bar ("Guardar"): touch height, tighter padding. */
+  compact?: boolean;
+  /** `start` lines the icon and label up on the left, for a full-width action row. */
+  align?: 'center' | 'start';
 }
 
 /**
@@ -26,6 +30,8 @@ export function Button({
   disabled,
   icon: Icon,
   tall = false,
+  compact = false,
+  align = 'center',
   ...props
 }: ButtonProps) {
   const { colors, radius, sizes, spacing } = useTheme();
@@ -39,10 +45,11 @@ export function Button({
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       disabled={isDisabled}
       style={({ pressed }) => ({
-        minHeight: variant === 'primary' || tall ? sizes.buttonPrimary : sizes.touchMin,
-        paddingHorizontal: spacing[4],
+        minHeight:
+          (variant === 'primary' || tall) && !compact ? sizes.buttonPrimary : sizes.touchMin,
+        paddingHorizontal: compact ? spacing[3] : spacing[4],
         borderRadius: radius.md,
-        alignItems: 'center',
+        alignItems: align === 'start' ? 'flex-start' : 'center',
         justifyContent: 'center',
         backgroundColor:
           variant === 'primary'

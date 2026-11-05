@@ -23,7 +23,7 @@ export function Chip({ label, selected, ...props }: ChipProps) {
         flexDirection: 'row',
         alignItems: 'center',
         gap: spacing[1],
-        borderRadius: radius.pill,
+        borderRadius: radius.md,
         borderWidth: 1,
         borderColor: selected ? colors.lime : colors.lineStrong,
         backgroundColor: selected ? colors.lime : 'transparent',

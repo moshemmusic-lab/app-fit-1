@@ -64,11 +64,9 @@
   },
   "radius": {
     "tokens": [
-      { "name": "radius-sm", "value": "9px", "usage": "Campos de kg y repeticiones, botón de serie hecha." },
-      { "name": "radius-md", "value": "12px", "usage": "Botones, iconos en caja, estadísticas." },
-      { "name": "radius-lg", "value": "18px", "usage": "Tarjetas." },
-      { "name": "radius-xl", "value": "22px", "usage": "Tarjetas destacadas: Hoy toca, programa destacado." },
-      { "name": "radius-pill", "value": "999px", "usage": "Chips de filtro y avatares." }
+      { "name": "radius-sm", "value": "9px", "usage": "Casillas de verificación." },
+      { "name": "radius-md", "value": "12px", "usage": "Todos los marcos: botones, campos, chips, tarjetas, filas de opciones y hojas." },
+      { "name": "radius-pill", "value": "999px", "usage": "Solo lo redondo que no es un marco: avatares, puntos, números de paso y barras de progreso." }
     ]
   },
   "size": {

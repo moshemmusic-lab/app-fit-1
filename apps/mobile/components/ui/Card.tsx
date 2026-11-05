@@ -17,7 +17,7 @@ export function Card({ children, ...props }: CardProps) {
       style={{
         padding: spacing[4],
         gap: spacing[3],
-        borderRadius: radius.lg,
+        borderRadius: radius.md,
         backgroundColor: colors.surface,
       }}
     >

@@ -25,7 +25,7 @@ export function OptionCard({ title, description, selected, ...props }: OptionCar
         flexDirection: 'row',
         alignItems: 'center',
         gap: spacing[3],
-        borderRadius: radius.lg,
+        borderRadius: radius.md,
         borderWidth: 1,
         borderColor: selected ? colors.lime : colors.line,
         backgroundColor: selected ? colors.lime : colors.surface,

@@ -68,9 +68,11 @@ Por ahora es solo tipográfico: **MOVYN** en Barlow Condensed 700, espaciado 0,0
 ## Composición
 
 - Pantalla de iPhone 390 × 844, margen lateral `space-4` (16 px).
-- Tarjetas `surface` con `radius-lg`; destacadas con `radius-xl`.
+- **Una sola forma para todos los marcos:** rectángulo con esquinas de `radius-md` (12 px), la de los botones. La usan botones, campos, chips, tarjetas, filas de opciones y hojas (decidido el 05/11/2026). Lo redondo (`radius-pill`) queda solo para lo que no es un marco: avatares, puntos del calendario, números de paso y barras de progreso.
+- Tarjetas `surface`; las destacadas se distinguen por contenido y superficie, no por la forma.
 - Sin sombras: la profundidad se marca con el cambio de superficie (`bg` → `surface` → `surface-2`).
 - Las acciones principales van abajo, al alcance del pulgar: temporizador de descanso, «Comprar programa», barra de pestañas.
+- Excepción: las pantallas que se abren para crear o elegir algo (crear rutina, añadir ejercicios) llevan «Cancelar» arriba a la izquierda y «Guardar» o «Crear» arriba a la derecha, como es habitual en iOS. Su acción grande del contenido («Añadir ejercicio», «Añadir 3 ejercicios») sigue abajo.
 - Navegación en cinco pestañas: Inicio, Entrenar, Programas, Progreso y Perfil.
 
 ## Componentes
