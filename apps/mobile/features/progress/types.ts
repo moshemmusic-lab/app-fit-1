@@ -32,6 +32,9 @@ export interface HistoryExercise {
 export interface SetRecord {
   setId: string;
   recordType: PersonalRecordType;
+  /** The new best, and the one it beat (for the shared image). Missing in older cached data. */
+  value?: number;
+  previousValue?: number | null;
 }
 
 export interface WorkoutDetail {

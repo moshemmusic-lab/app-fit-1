@@ -105,6 +105,7 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
         <Stack.Screen name="comments/[workoutId]" />
         <Stack.Screen name="follow-requests" />
         <Stack.Screen name="blocked-users" />
+        <Stack.Screen name="share/[workoutId]" />
       </Stack.Protected>
     </Stack>
   );
